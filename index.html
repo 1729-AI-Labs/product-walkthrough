@@ -1,0 +1,3133 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>1729 Systems — Product Walkthrough</title>
+    <meta name="description"
+        content="See exactly how software gets built on 1729 Systems. A step-by-step product walkthrough.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        /* ── Reset & Base ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0
+        }
+
+        html {
+            scroll-behavior: smooth;
+            font-size: 16px
+        }
+
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+            background: #09090b;
+            color: #a1a1aa;
+            line-height: 1.7;
+            overflow-x: hidden
+        }
+
+        ::selection {
+            background: #3b82f6;
+            color: #fff
+        }
+
+        /* ── Layout ── */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem
+        }
+
+        /* ── Hero ── */
+        .hero {
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 8rem 2rem 4rem
+        }
+
+        .hero-badge {
+            display: inline-block;
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .15em;
+            text-transform: uppercase;
+            color: #3b82f6;
+            border: 1px solid #1e3a5f;
+            border-radius: 999px;
+            padding: .4rem 1.2rem;
+            margin-bottom: 1.5rem
+        }
+
+        .hero h1 {
+            font-size: clamp(2.2rem, 5vw, 3.8rem);
+            font-weight: 800;
+            color: #fafafa;
+            line-height: 1.15;
+            max-width: 700px
+        }
+
+        .hero p {
+            font-size: 1.1rem;
+            color: #71717a;
+            max-width: 540px;
+            margin-top: 1.2rem
+        }
+
+        /* ── Hero Refined ── */
+        .hero-subtitle {
+            font-size: clamp(1.1rem, 2vw, 1.35rem);
+            font-weight: 600;
+            color: #d4d4d8;
+            /* Zinc-300 */
+            margin: 1.5rem 0 1rem;
+            letter-spacing: -0.01em;
+            line-height: 1.4;
+        }
+
+        .hero-description {
+            font-size: 1.05rem;
+            color: #a1a1aa;
+            /* Zinc-400 */
+            max-width: 580px;
+            margin: 0 auto 2rem;
+            line-height: 1.7;
+        }
+
+        .hero-features {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .feature-badge {
+            background: rgba(39, 39, 42, 0.4);
+            /* Zinc-800 with opacity */
+            border: 1px solid #27272a;
+            /* Zinc-800 */
+            padding: 8px 16px;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            color: #e4e4e7;
+            /* Zinc-200 */
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            /* Subtle hover state */
+            transition: all 0.2s ease;
+        }
+
+        .feature-badge:hover {
+            border-color: #3b82f6;
+            /* Blue-500 */
+            background: rgba(59, 130, 246, 0.1);
+        }
+
+        .feature-badge::before {
+            content: '';
+            display: block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background-color: #3b82f6;
+            /* Blue-500 */
+            box-shadow: 0 0 6px rgba(59, 130, 246, 0.6);
+        }
+
+        /* ── Phase Header ── */
+        .phase-header {
+            text-align: center;
+            padding: 8rem 2rem 3rem;
+            scroll-margin-top: 120px;
+        }
+
+        .phase-label {
+            font-size: .7rem;
+            font-weight: 600;
+            letter-spacing: .2em;
+            text-transform: uppercase;
+            color: #3b82f6;
+            margin-bottom: .6rem
+        }
+
+        .phase-header h2 {
+            font-size: clamp(1.6rem, 3.5vw, 2.4rem);
+            font-weight: 700;
+            color: #fafafa;
+            max-width: 600px;
+            margin: 0 auto
+        }
+
+        .phase-header p {
+            color: #71717a;
+            max-width: 500px;
+            margin: .8rem auto 0;
+            font-size: .95rem
+        }
+
+        /* ── Phase Backgrounds ── */
+        .phase-2,
+        .phase-4 {
+            background-color: #0c0c14;
+            border-top: 1px solid #1a1a2e;
+        }
+
+        .phase-divider {
+            width: 100%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #3b82f6 50%, transparent);
+            max-width: 200px;
+            margin: 0 auto;
+            opacity: 0.3;
+        }
+
+        /* ── Sticky Progress Dots ── */
+        .progress-dots {
+            position: fixed;
+            right: 24px;
+            top: 50%;
+            transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 100;
+        }
+
+        .progress-dots .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #27272a;
+            transition: all 0.3s ease;
+        }
+
+        .progress-dots .dot.active {
+            background: #3b82f6;
+            box-shadow: 0 0 8px rgba(59, 130, 246, 0.4);
+            transform: scale(1.2);
+        }
+
+        .progress-dots .dot.gap {
+            margin-top: 12px;
+        }
+
+        @media (max-width: 768px) {
+            .progress-dots {
+                display: none;
+            }
+        }
+
+        /* ── Hero Flow Animation ── */
+        .hero-flow {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 2rem;
+            opacity: 0;
+            animation: fadeUp 0.8s ease 0.3s forwards;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .hero-box {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #e4e4e7;
+            font-weight: 500;
+        }
+
+        .hero-arrow {
+            color: #3b82f6;
+            font-size: 1.2rem;
+            opacity: 0.6;
+        }
+
+        /* ── Scroll Reveal ── */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .reveal.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ── Sticky Scroll Section ── */
+        .sticky-section {
+            display: grid;
+            grid-template-columns: 1.4fr 0.8fr;
+            /* More space for mockups */
+            gap: 4rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+            padding: 0 2rem;
+        }
+
+        /* Override for Phase 4 Code Editor */
+        .sticky-section[data-phase="code"] {
+            grid-template-columns: 1.6fr 0.6fr;
+        }
+
+        .sticky-visual {
+            position: sticky;
+            top: 12vh;
+            height: fit-content;
+            align-self: start;
+            padding: 2rem 0
+        }
+
+        .sticky-visual .mockup-frame {
+            opacity: 0;
+            position: absolute;
+            top: 2rem;
+            left: 0;
+            right: 0;
+            transition: opacity .5s ease, transform .5s ease;
+            transform: translateY(12px)
+        }
+
+        .sticky-visual .mockup-frame.active {
+            opacity: 1;
+            position: relative;
+            transform: translateY(0)
+        }
+
+        .sticky-narrative {
+            padding: 6rem 0
+        }
+
+        .scroll-step {
+            min-height: 80vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 2rem 0
+        }
+
+        .scroll-step:last-child {
+            min-height: 40vh
+        }
+
+        .step-num {
+            font-size: .78rem;
+            font-weight: 700;
+            letter-spacing: .14em;
+            color: #3b82f6;
+            margin-bottom: .6rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .step-num::before {
+            content: '';
+            display: inline-block;
+            width: 16px;
+            height: 1.5px;
+            background: currentColor;
+            opacity: 0.5;
+        }
+
+        .step-title {
+            font-size: 1.35rem;
+            font-weight: 700;
+            color: #fafafa;
+            margin-bottom: .8rem;
+            line-height: 1.3
+        }
+
+        .step-text {
+            font-size: .92rem;
+            color: #a1a1aa;
+            line-height: 1.75;
+            max-width: 360px;
+            opacity: 0.45;
+            transition: opacity 0.4s ease;
+        }
+
+        .scroll-step.active .step-text {
+            opacity: 1;
+        }
+
+        .step-text strong {
+            color: #e4e4e7
+        }
+
+        /* ── Transition Card (FileSpace) ── */
+        .transition-card {
+            max-width: 1200px;
+            margin: 4rem auto;
+            padding: 0 2rem
+        }
+
+        /* ── Mockup Styles ── */
+        .mockup-frame {
+            background: #18181b;
+            border: 1px solid #2e2e33;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6),
+                0 0 0 1px rgba(255, 255, 255, 0.03);
+        }
+
+        .mockup-chrome {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 10px 14px;
+            background: #0f0f11;
+            border-bottom: 1px solid #27272a
+        }
+
+        .mockup-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%
+        }
+
+        .mockup-dot.r {
+            background: #ff5f57
+        }
+
+        .mockup-dot.y {
+            background: #febc2e
+        }
+
+        .mockup-dot.g {
+            background: #28c840
+        }
+
+        .mockup-chrome-title {
+            margin-left: 10px;
+            font-size: .68rem;
+            color: #52525b;
+            font-weight: 500
+        }
+
+        .mockup-badge {
+            display: inline-block;
+            font-size: .7rem;
+            font-weight: 600;
+            padding: 4px 12px;
+            border-radius: 999px;
+            letter-spacing: .03em
+        }
+
+        .mockup-badge.blue {
+            background: #1e3a5f;
+            color: #60a5fa
+        }
+
+        .mockup-badge.green {
+            background: #14532d;
+            color: #4ade80
+        }
+
+        .mockup-badge.red {
+            background: #450a0a;
+            color: #fca5a5
+        }
+
+        .mockup-badge.amber {
+            background: #451a03;
+            color: #fbbf24
+        }
+
+        .mockup-badge.slate {
+            background: #1e293b;
+            color: #94a3b8
+        }
+
+        .mockup-h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #e4e4e7;
+            margin: 8px 0
+        }
+
+        .mockup-p {
+            font-size: .82rem;
+            color: #a1a1aa;
+            line-height: 1.6
+        }
+
+        .mockup-label {
+            font-size: .7rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: .12em;
+            color: #52525b;
+            margin-bottom: 6px
+        }
+
+        .mockup-card {
+            background: #1c1c1f;
+            border: 1px solid #2e2e33;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .mockup-btn {
+            display: inline-block;
+            font-size: .72rem;
+            font-weight: 600;
+            padding: 7px 18px;
+            border-radius: 6px;
+            cursor: default
+        }
+
+        .mockup-btn.primary {
+            background: #3b82f6;
+            color: #fff
+        }
+
+        .mockup-btn.success {
+            background: #22c55e;
+            color: #fff
+        }
+
+        .mockup-btn.outline {
+            background: transparent;
+            border: 1px solid #3f3f46;
+            color: #a1a1aa
+        }
+
+        /* Context box */
+        .context-box {
+            background: #172036;
+            border-left: 3px solid #3b82f6;
+            padding: 10px 14px;
+            border-radius: 0 6px 6px 0;
+            font-size: .72rem;
+            color: #93c5fd;
+            margin: 10px 0 14px;
+            line-height: 1.6
+        }
+
+        /* Option rows */
+        .mockup-option {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            padding: 10px 14px;
+            margin: 6px 0;
+            border-radius: 8px;
+            border: 1px solid #27272a;
+            font-size: .72rem;
+            color: #a1a1aa;
+            line-height: 1.5;
+            transition: border-color .3s
+        }
+
+        .mockup-option .radio {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            border: 2px solid #3f3f46;
+            flex-shrink: 0;
+            margin-top: 2px;
+            transition: all .3s
+        }
+
+        /* Doc viewer */
+        .mockup-layout {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            min-height: 280px
+        }
+
+        .mockup-sidebar {
+            padding: 16px;
+            border-right: 1px solid #27272a
+        }
+
+        .mockup-content {
+            padding: 20px
+        }
+
+        .doc-viewer-sections {
+            list-style: none;
+            font-size: .7rem;
+            color: #71717a
+        }
+
+        .doc-viewer-sections li {
+            padding: 6px 10px;
+            border-radius: 6px;
+            margin-bottom: 2px;
+            cursor: default
+        }
+
+        .doc-viewer-sections li.active {
+            background: #1e3a5f;
+            color: #60a5fa
+        }
+
+        .doc-body h4 {
+            font-size: .82rem;
+            color: #e4e4e7;
+            margin-bottom: 8px
+        }
+
+        .doc-body p {
+            font-size: .72rem;
+            color: #a1a1aa;
+            line-height: 1.6
+        }
+
+        /* Architecture diagram */
+        .arch-diagram {
+            margin: 12px 0;
+            padding: 16px;
+            background: #111113;
+            border-radius: 8px;
+            border: 1px solid #27272a
+        }
+
+        .arch-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center
+        }
+
+        .arch-box {
+            background: #1e293b;
+            border: 1px solid #334155;
+            padding: 6px 14px;
+            border-radius: 6px;
+            font-size: .65rem;
+            color: #94a3b8;
+            text-align: center;
+            min-width: 80px
+        }
+
+        .arch-box.highlight {
+            border-color: #3b82f6;
+            color: #60a5fa
+        }
+
+        .arch-arrow {
+            text-align: center;
+            color: #3f3f46;
+            font-size: .8rem;
+            margin: 4px 0
+        }
+
+        /* File grid */
+        .file-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px
+        }
+
+        .file-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: #1c1c1f;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: .72rem;
+            color: #e4e4e7;
+            transition: border-color .3s
+        }
+
+        /* ── Coding Module (Real Tool Redesign) ── */
+
+        /* Header bar */
+        .cm-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            background: #111114;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .cm-header-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cm-header-logo {
+            font-size: .78rem;
+            font-weight: 700;
+            color: #e4e4e7;
+            letter-spacing: -.02em;
+        }
+
+        .cm-header-version {
+            font-size: .58rem;
+            color: #52525b;
+            margin-left: 2px;
+        }
+
+        .cm-header-tabs {
+            display: flex;
+            gap: 0;
+            background: #1c1c1f;
+            border-radius: 6px;
+            padding: 2px;
+            border: 1px solid #27272a;
+        }
+
+        .cm-header-tab {
+            padding: 4px 14px;
+            font-size: .62rem;
+            font-weight: 500;
+            color: #71717a;
+            border-radius: 4px;
+            cursor: default;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .cm-header-tab.active {
+            background: #27272a;
+            color: #e4e4e7;
+        }
+
+        .cm-header-tab-icon {
+            font-size: .58rem;
+        }
+
+        .cm-header-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cm-project-name {
+            font-size: .68rem;
+            font-weight: 500;
+            color: #a1a1aa;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .cm-project-dot {
+            width: 6px;
+            height: 6px;
+            background: #3b82f6;
+            border-radius: 50%;
+        }
+
+        .cm-header-icon {
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #52525b;
+            font-size: .72rem;
+            cursor: default;
+        }
+
+        /* Navigation / Stepper row */
+        .cm-nav-row {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #1a1a2e;
+        }
+
+        .cm-back-btn {
+            font-size: .72rem;
+            color: #71717a;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-right: 24px;
+            cursor: default;
+        }
+
+        .cm-stepper {
+            display: flex;
+            align-items: center;
+            gap: 0;
+            flex: 1;
+            justify-content: center;
+        }
+
+        .cm-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .66rem;
+            color: #52525b;
+            white-space: nowrap;
+        }
+
+        .cm-step.done {
+            color: #4ade80
+        }
+
+        .cm-step.active {
+            color: #e4e4e7;
+            font-weight: 600;
+        }
+
+        .cm-step-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .55rem;
+            font-weight: 700;
+        }
+
+        .cm-step-dot.done {
+            background: #14532d;
+            color: #4ade80;
+        }
+
+        .cm-step-dot.active {
+            background: #1e3a5f;
+            color: #60a5fa;
+        }
+
+        .cm-step-dot.pending {
+            background: #27272a;
+            color: #52525b;
+        }
+
+        .cm-step-line {
+            width: 40px;
+            height: 1px;
+            background: #27272a;
+            margin: 0 6px;
+        }
+
+        .cm-step-line.done {
+            background: #14532d;
+        }
+
+        /* Streaming status bar */
+        .cm-status-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 20px;
+            background: linear-gradient(90deg, #0a1a0a, #111114);
+            border-bottom: 1px solid #1a2e1a;
+            font-size: .62rem;
+            color: #4ade80;
+        }
+
+        .cm-status-spinner {
+            width: 12px;
+            height: 12px;
+            border: 1.5px solid #27272a;
+            border-top-color: #4ade80;
+            border-radius: 50%;
+            animation: cmSpin 1s linear infinite;
+        }
+
+        @keyframes cmSpin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Working-on bar */
+        .cm-working-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background: #0f0f12;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .cm-working-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .cm-working-label {
+            font-size: .72rem;
+            font-weight: 600;
+            color: #a1a1aa;
+        }
+
+        .cm-task-badge {
+            display: inline-block;
+            background: #1c1c1f;
+            border: 1px solid #3f3f46;
+            border-radius: 4px;
+            padding: 2px 10px;
+            font-size: .65rem;
+            font-weight: 600;
+            color: #e4e4e7;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cm-meta {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .6rem;
+            color: #52525b;
+        }
+
+        .cm-meta-item {
+            background: #1c1c1f;
+            border: 1px solid #27272a;
+            border-radius: 4px;
+            padding: 2px 8px;
+        }
+
+        .cm-working-right {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .cm-new-btn {
+            font-size: .62rem;
+            color: #71717a;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            cursor: default;
+        }
+
+        .cm-fullscreen-btn {
+            font-size: .72rem;
+            color: #52525b;
+            cursor: default;
+        }
+
+        /* Chat / AI response area */
+        .cm-chat-area {
+            padding: 20px 24px;
+        }
+
+        .cm-ai-message {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .cm-ai-avatar {
+            width: 30px;
+            height: 30px;
+            min-width: 30px;
+            background: linear-gradient(135deg, #1a2e1a, #14532d);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            border: 1px solid #27472a;
+        }
+
+        .cm-ai-body {
+            flex: 1;
+            font-size: .72rem;
+            color: #a1a1aa;
+            line-height: 1.75;
+        }
+
+        .cm-ai-body strong {
+            color: #e4e4e7;
+            font-weight: 600;
+        }
+
+        .cm-ai-body code {
+            background: #27272a;
+            color: #818cf8;
+            padding: 1px 6px;
+            border-radius: 3px;
+            font-size: .65rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Code block inside AI response */
+        .cm-code-block {
+            margin-top: 14px;
+            background: #0f0f12;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cm-code-block-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 14px;
+            background: #1c1c1f;
+            border-bottom: 1px solid #27272a;
+        }
+
+        .cm-code-lang {
+            font-size: .6rem;
+            color: #71717a;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .cm-code-copy {
+            font-size: .58rem;
+            color: #52525b;
+            cursor: default;
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+
+        .cm-code-copy:hover {
+            background: #27272a;
+            color: #a1a1aa;
+        }
+
+        .cm-code-content {
+            padding: 14px 0;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .66rem;
+            line-height: 1.8;
+            color: #a1a1aa;
+            overflow-x: auto;
+        }
+
+        .cm-code-content .code-kw {
+            color: #c084fc;
+        }
+
+        .cm-code-content .code-type {
+            color: #22d3ee;
+        }
+
+        .cm-code-content .code-fn {
+            color: #fbbf24;
+        }
+
+        .cm-code-content .code-str {
+            color: #4ade80;
+        }
+
+        .cm-code-content .code-comment {
+            color: #4a5568;
+            font-style: italic;
+        }
+
+        /* Streaming animation for code lines */
+        .cm-stream-line {
+            display: flex;
+            opacity: 0;
+            transform: translateX(-4px);
+            white-space: nowrap;
+        }
+
+        .cm-stream-line .ln {
+            color: #3f3f46;
+            min-width: 32px;
+            padding: 0 12px 0 16px;
+            text-align: right;
+            user-select: none;
+            flex-shrink: 0;
+        }
+
+        .cm-stream-line .lc {
+            flex: 1;
+            padding-right: 16px;
+        }
+
+        .cm-streaming .cm-stream-line {
+            animation: cmStreamIn 0.3s ease forwards;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(1) {
+            animation-delay: 0.8s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(2) {
+            animation-delay: 1.1s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(3) {
+            animation-delay: 1.3s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(4) {
+            animation-delay: 1.5s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(5) {
+            animation-delay: 1.8s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(6) {
+            animation-delay: 2.0s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(7) {
+            animation-delay: 2.3s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(8) {
+            animation-delay: 2.5s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(9) {
+            animation-delay: 2.7s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(10) {
+            animation-delay: 2.9s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(11) {
+            animation-delay: 3.1s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(12) {
+            animation-delay: 3.3s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(13) {
+            animation-delay: 3.5s;
+        }
+
+        .cm-streaming .cm-stream-line:nth-child(14) {
+            animation-delay: 3.7s;
+        }
+
+        @keyframes cmStreamIn {
+            from {
+                opacity: 0;
+                transform: translateX(-4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        /* Streaming cursor that follows last visible line */
+        .cm-stream-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 14px;
+            background: #3b82f6;
+            animation: blink 1s infinite;
+            vertical-align: middle;
+            margin-left: 2px;
+            opacity: 0;
+        }
+
+        .cm-streaming .cm-stream-cursor {
+            animation: cmCursorAppear 0.1s ease forwards 3.7s, blink 1s infinite 3.8s;
+        }
+
+        @keyframes cmCursorAppear {
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Prose streaming */
+        .cm-ai-prose {
+            opacity: 0;
+        }
+
+        .cm-streaming .cm-ai-prose {
+            animation: cmStreamIn 0.4s ease forwards 0.2s;
+        }
+
+        .cm-streaming .cm-code-block {
+            opacity: 0;
+            animation: cmStreamIn 0.3s ease forwards 0.6s;
+        }
+
+        /* Task board columns */
+        .task-cols {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px
+        }
+
+        .task-col-header {
+            font-size: .68rem;
+            font-weight: 600;
+            color: #71717a;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: .05em
+        }
+
+        .task-card-mini {
+            background: #1c1c1f;
+            border: 1px solid #27272a;
+            border-radius: 6px;
+            padding: 10px 12px;
+            margin-bottom: 6px
+        }
+
+        .task-id {
+            font-size: .6rem;
+            color: #52525b;
+            font-family: monospace;
+            margin-bottom: 2px
+        }
+
+        .task-title {
+            font-size: .7rem;
+            color: #e4e4e7;
+            font-weight: 500
+        }
+
+        /* Sprint list */
+        .sprint-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px
+        }
+
+        .sprint-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: #1c1c1f;
+            border: 1px solid #27272a;
+            border-radius: 8px;
+            font-size: .72rem
+        }
+
+        .sprint-id {
+            color: #3b82f6;
+            font-weight: 600;
+            font-family: monospace;
+            min-width: 28px
+        }
+
+        .sprint-name {
+            color: #e4e4e7;
+            flex: 1
+        }
+
+        .sprint-tasks {
+            color: #52525b;
+            font-size: .65rem
+        }
+
+        /* Code editor */
+        .code-pane {
+            display: grid;
+            grid-template-columns: 220px 1fr
+        }
+
+        .code-left {
+            padding: 16px;
+            border-right: 1px solid #27272a
+        }
+
+        .code-right {
+            display: flex;
+            flex-direction: column
+        }
+
+        .code-tabs {
+            display: flex;
+            gap: 0;
+            border-bottom: 1px solid #27272a
+        }
+
+        .code-tab {
+            padding: 8px 16px;
+            font-size: .68rem;
+            color: #52525b;
+            border-bottom: 2px solid transparent
+        }
+
+        .code-tab.active {
+            color: #e4e4e7;
+            border-bottom-color: #3b82f6
+        }
+
+        .code-editor {
+            flex: 1;
+            padding: 12px 16px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: .68rem;
+            line-height: 1.8;
+            overflow: hidden
+        }
+
+        .code-line {
+            display: flex;
+            gap: 8px;
+            color: #a1a1aa
+        }
+
+        .code-ln {
+            color: #3f3f46;
+            min-width: 20px;
+            text-align: right;
+            user-select: none
+        }
+
+        .code-kw {
+            color: #c084fc
+        }
+
+        .code-type {
+            color: #22d3ee
+        }
+
+        .code-fn {
+            color: #fbbf24
+        }
+
+        .code-str {
+            color: #4ade80
+        }
+
+        .code-terminal {
+            padding: 10px 16px;
+            background: #0f0f11;
+            border-top: 1px solid #27272a;
+            font-family: monospace;
+            font-size: .65rem;
+            color: #71717a
+        }
+
+        /* Stepper (coding module) */
+        .cm-stepper {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+            padding: 10px 0
+        }
+
+        .cm-step {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: .68rem;
+            color: #52525b
+        }
+
+        .cm-step.done {
+            color: #4ade80
+        }
+
+        .cm-step.active {
+            color: #e4e4e7
+        }
+
+        .cm-step-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: .55rem;
+            font-weight: 700
+        }
+
+        .cm-step-dot.done {
+            background: #14532d;
+            color: #4ade80
+        }
+
+        .cm-step-dot.active {
+            background: #1e3a5f;
+            color: #60a5fa
+        }
+
+        .cm-step-dot.pending {
+            background: #27272a;
+            color: #52525b
+        }
+
+        .cm-step-line {
+            width: 30px;
+            height: 1px;
+            background: #27272a
+        }
+
+        /* Video section */
+        .video-section {
+            text-align: center;
+            padding: 6rem 2rem;
+            max-width: 900px;
+            margin: 0 auto
+        }
+
+        .video-section h2 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #fafafa;
+            margin-bottom: .6rem
+        }
+
+        .video-section p {
+            color: #71717a;
+            margin-bottom: 2rem
+        }
+
+        .video-wrapper {
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid #27272a;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, .5)
+        }
+
+        .video-wrapper video {
+            width: 100%;
+            display: block
+        }
+
+        /* Animations */
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: 0
+            }
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1
+            }
+
+            50% {
+                opacity: .7
+            }
+        }
+
+        .anim-cursor {
+            display: inline-block;
+            width: 2px;
+            height: 14px;
+            background: #3b82f6;
+            margin-left: 2px;
+            animation: blink 1s infinite
+        }
+
+        .anim-pulse {
+            animation: pulse 2.5s ease-in-out infinite
+        }
+
+        .anim-fade1 {
+            animation: fadeUp .6s ease both .1s
+        }
+
+        .anim-fade2 {
+            animation: fadeUp .6s ease both .25s
+        }
+
+        /* ── Sticky Phase Navigation ── */
+        .phase-nav-container {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 1rem 0;
+            background: rgba(9, 9, 11, 0.92);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(59, 130, 246, 0.08);
+            margin-bottom: 2rem;
+        }
+
+        .phase-nav {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0 1rem;
+        }
+
+        .phase-step {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 12px 20px;
+            min-width: 160px;
+            border: 1px solid rgba(63, 63, 70, 0.4);
+            border-radius: 8px;
+            background: rgba(24, 24, 27, 0.6);
+            color: #a1a1aa;
+            text-decoration: none;
+            transition: all 0.25s ease;
+        }
+
+        .phase-step:hover {
+            border-color: #52525b;
+            background: #27272a;
+        }
+
+        .phase-step.active {
+            border-color: rgba(59, 130, 246, 0.5);
+            background: rgba(59, 130, 246, 0.06);
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.08);
+        }
+
+        /* Per-phase accent colors on nav pills */
+        .phase-step:nth-child(1).active {
+            border-color: #10b981;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.1);
+        }
+
+        .phase-step:nth-child(3).active {
+            border-color: #3b82f6;
+        }
+
+        .phase-step:nth-child(5).active {
+            border-color: #f59e0b;
+            box-shadow: 0 0 12px rgba(245, 158, 11, 0.1);
+        }
+
+        .phase-step:nth-child(7).active {
+            border-color: #8b5cf6;
+            box-shadow: 0 0 12px rgba(139, 92, 246, 0.1);
+        }
+
+        .phase-step-id {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #71717a;
+            margin-bottom: 4px;
+            font-weight: 600;
+        }
+
+        .phase-step.active .phase-step-id {
+            color: #60a5fa;
+        }
+
+        .phase-step-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #e4e4e7;
+        }
+
+        .phase-step.active .phase-step-title {
+            color: #fafafa;
+        }
+
+        .phase-arrow {
+            color: #3f3f46;
+            font-size: 1rem;
+            opacity: 0.5;
+        }
+
+        @media (max-width: 768px) {
+            .phase-nav-container {
+                padding: 0.8rem 0;
+                overflow-x: auto;
+                justify-content: flex-start;
+            }
+
+            .phase-nav {
+                width: max-content;
+                gap: 0.8rem;
+                padding: 0 1rem;
+            }
+
+            .phase-step {
+                min-width: 110px;
+                padding: 8px 12px;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .sticky-section {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .sticky-visual {
+                position: relative;
+                top: 0;
+                height: auto;
+                margin-bottom: 2rem;
+            }
+
+            /* Hide non-active mockups on mobile to prevent stacking */
+            .mockup-frame:not(.active) {
+                display: none;
+            }
+
+            .sticky-visual .mockup-frame {
+                position: relative;
+                opacity: 1;
+                transform: none
+            }
+
+            .scroll-step {
+                min-height: auto;
+                padding: 2rem 0
+            }
+
+            .mockup-layout {
+                grid-template-columns: 1fr
+            }
+
+            .code-pane {
+                grid-template-columns: 1fr
+            }
+
+            .task-cols {
+                grid-template-columns: 1fr
+            }
+
+            .file-grid {
+                grid-template-columns: repeat(2, 1fr)
+            }
+
+            .cm-header-tabs,
+            .cm-meta,
+            .cm-header-right .cm-project-name {
+                display: none;
+            }
+
+            .cm-working-bar {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+        }
+
+        /* ── Per-Phase Accent Colors ── */
+        [data-phase="discovery"] .step-num {
+            color: #10b981;
+        }
+
+        [data-phase="discovery"] .mockup-frame.active {
+            border-color: rgba(16, 185, 129, 0.2);
+        }
+
+        [data-phase="architecture"] .step-num {
+            color: #3b82f6;
+        }
+
+        [data-phase="sprint"] .step-num {
+            color: #f59e0b;
+        }
+
+        [data-phase="sprint"] .mockup-frame.active {
+            border-color: rgba(245, 158, 11, 0.2);
+        }
+
+        [data-phase="code"] .step-num {
+            color: #8b5cf6;
+        }
+
+        [data-phase="code"] .mockup-frame.active {
+            border-color: rgba(139, 92, 246, 0.2);
+        }
+
+        /* ── Alternate Layout for Phase 3 ── */
+        [data-phase="sprint"] {
+            grid-template-columns: 0.8fr 1.4fr;
+        }
+
+        [data-phase="sprint"] .sticky-narrative {
+            order: -1;
+        }
+
+        /* ── Spec Complete Bridge Glow ── */
+        .spec-complete-bridge {
+            position: relative;
+        }
+
+        .spec-complete-bridge::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 300px;
+            background: radial-gradient(ellipse, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <noscript>
+        <div
+            style="background-color: #18181b; color: #fafafa; padding: 3rem 2rem; text-align: center; font-family: 'Inter', sans-serif; min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+            <div style="font-size: 2.5rem; margin-bottom: 1rem;">⚠️</div>
+            <h1 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 1rem; color: #fafafa;">JavaScript Required
+            </h1>
+            <p style="font-size: 1rem; color: #a1a1aa; max-width: 500px; line-height: 1.6; margin-bottom: 1.5rem;">
+                This interactive product walkthrough relies on JavaScript for scroll animations,
+                architecture diagrams, and live document rendering.
+            </p>
+            <p style="font-size: 0.9rem; color: #71717a; max-width: 500px; line-height: 1.6;">
+                Please enable JavaScript in your browser settings and reload the page, or
+                <a href="mailto:hello@1729systems.com" style="color: #3b82f6; text-decoration: underline;">contact
+                    us</a>
+                for a static PDF version of the walkthrough.
+            </p>
+        </div>
+    </noscript>
+
+    <!-- ═══════════════ HERO ═══════════════ -->
+    <section class="hero">
+        <div class="hero-content">
+            <div class="pill-badge">Product Walkthrough</div>
+            <h1>How Software
+                Gets Built on 1729 Systems</h1>
+            <div class="hero-subtitle">From intent to production — no black boxes, no manual coding.</div>
+
+            <!-- Hero Flow Diagram -->
+            <div class="hero-flow">
+                <div class="hero-box">Initial Intent</div>
+                <div class="hero-arrow">→</div>
+                <div class="hero-box"
+                    style="box-shadow: 0 0 20px rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.3); color: #fff;">
+                    Validated
+                    Spec Model
+                </div>
+                <div class="hero-arrow">→</div>
+                <div class="hero-box" style="box-shadow: 0 0 20px rgba(59,130,246,0.15); border-color:
+                    rgba(59,130,246,0.3); color: #fff;">Production-Ready Code</div>
+                <div class="hero-arrow">→</div>
+                <div class="hero-box">Deployment & Go Live</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ PHASE NAVIGATION ═══════════════ -->
+    <nav class="phase-nav-container" id="phaseNav">
+        <div class="phase-nav">
+            <a href="#phase-1" class="phase-step" data-target="phase-1">
+                <span class="phase-step-id">PHASE 1</span>
+                <span class="phase-step-title">Discovery</span>
+            </a>
+            <div class="phase-arrow">→</div>
+            <a href="#phase-2" class="phase-step" data-target="phase-2">
+                <span class="phase-step-id">PHASE 2</span>
+                <span class="phase-step-title">Architecture</span>
+            </a>
+            <div class="phase-arrow">→</div>
+            <a href="#phase-3" class="phase-step" data-target="phase-3">
+                <span class="phase-step-id">PHASE 3</span>
+                <span class="phase-step-title">Sprint Plan</span>
+            </a>
+            <div class="phase-arrow">→</div>
+            <a href="#phase-4" class="phase-step" data-target="phase-4">
+                <span class="phase-step-id">PHASE 4</span>
+                <span class="phase-step-title">Code & Test</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- ═══════════════ PHASE 1: DISCOVERY ═══════════════ -->
+    <div class="phase-divider"></div>
+    <div id="phase-1" class="phase-header">
+        <div class="phase-label">Phase 1 • Discovery </div>
+        <h2>Start with just two documents</h2>
+        <p><strong>That's the entire handoff.
+                A Statement of Work and a Workflow Document — things your team already produces. <br><br> No new
+                process. No
+                training. No onboarding.</strong>
+
+        </p>
+    </div>
+
+    <div class="progress-dots">
+        <div class="dot" data-step="1"></div>
+        <div class="dot" data-step="2"></div>
+    </div>
+
+    <div class="sticky-section" data-phase="discovery">
+        <div class="sticky-visual">
+            <!-- Step 01: Two Documents -->
+            <div class="mockup-frame active" data-step="1">
+                <div class="mockup-chrome">
+                    <div class="mockup-dot r"></div>
+                    <div class="mockup-dot y"></div>
+                    <div class="mockup-dot g"></div>
+                    <span class="mockup-chrome-title">Project Inputs</span>
+                </div>
+                <div style="padding:30px 24px;">
+                    <div class="mockup-label">Required Documents</div>
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:12px;">
+                        <div class="mockup-card" style="text-align:center;padding:24px 16px;">
+                            <div style="font-size:2.2rem;margin-bottom:8px;">📄</div>
+                            <div class="mockup-h3" style="font-size:.8rem;">Statement of Work</div>
+                            <div class="mockup-p" style="font-size:.68rem;">Your sales team already produces this.
+                                Scope, objectives, deliverables.</div>
+                            <div class="mockup-badge green" style="margin-top:10px;">From Sales</div>
+                        </div>
+                        <div class="mockup-card" style="text-align:center;padding:24px 16px;">
+                            <div style="font-size:2.2rem;margin-bottom:8px;">📋</div>
+                            <div class="mockup-h3" style="font-size:.8rem;">Workflow Document</div>
+                            <div class="mockup-p" style="font-size:.68rem;">Your BA creates this in a few client
+                                meetings. Business processes, user flows.</div>
+                            <div class="mockup-badge blue" style="margin-top:10px;">From BA</div>
+                        </div>
+                    </div>
+                    <div style="text-align:center;margin-top:20px;font-size:.72rem;color:#52525b;">These documents are
+                        prepared offline — no platform needed yet.</div>
+                </div>
+            </div>
+            <!-- Step 02: Upload -->
+            <div class="mockup-frame" data-step="2">
+                <div class="mockup-chrome">
+                    <div class="mockup-dot r"></div>
+                    <div class="mockup-dot y"></div>
+                    <div class="mockup-dot g"></div>
+                    <span class="mockup-chrome-title">Solution Architect Workspace</span>
+                </div>
+                <div style="padding:20px 24px;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+                        <div class="mockup-h3" style="margin:0;">New Project</div>
+                        <div class="mockup-badge green">Ready</div>
+                    </div>
+                    <div class="mockup-label">Uploaded Documents</div>
+                    <div class="mockup-card anim-fade1" style="display:flex;align-items:center;gap:12px;">
+                        <span style="font-size:1.1rem;">📄</span>
+                        <div>
+                            <div style="font-size:.75rem;color:#e4e4e7;font-weight:500;">CustomerProject_SOW_v2.docx
+                            </div>
+                            <div style="font-size:.62rem;color:#52525b;">Uploaded 2 min ago • 24 pages</div>
+                        </div>
+                        <span style="margin-left:auto;color:#4ade80;font-size:.72rem;">✓</span>
+                    </div>
+                    <div class="mockup-card anim-fade2" style="display:flex;align-items:center;gap:12px;">
+                        <span style="font-size:1.1rem;">📋</span>
+                        <div>
+                            <div style="font-size:.75rem;color:#e4e4e7;font-weight:500;">
+                                CustomerProject_Workflow_v1.docx
+                            </div>
+                            <div style="font-size:.62rem;color:#52525b;">Uploaded 1 min ago • 18 pages</div>
+                        </div>
+                        <span style="margin-left:auto;color:#4ade80;font-size:.72rem;">✓</span>
+                    </div>
+                    <div
+                        style="margin-top:16px;padding:12px 16px;background:#172036;border-radius:8px;border:1px solid #1e3a5f;">
+                        <div style="font-size:.72rem;color:#60a5fa;">✦ Platform is analyzing both documents...</div>
+                        <div style="margin-top:8px;height:4px;background:#27272a;border-radius:4px;overflow:hidden;">
+                            <div
+                                style="width:65%;height:100%;background:linear-gradient(90deg,#3b82f6,#60a5fa);border-radius:4px;animation:pulse 2s infinite;">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mockup-btn primary anim-pulse" style="margin-top:16px;">Start Architecture →</div>
+                </div>
+            </div>
+        </div>
+        <div class="sticky-narrative">
+            <div class="scroll-step" data-target="1">
+                <div class="step-num">STEP 01</div>
+                <div class="step-title">Provide two documents</div>
+                <div class="step-text">
+                    We ingest what clients already have:
+                    <br>• Statement of Work (SOW)
+                    <br>• Business Process Documents / Workflow Document/ PRD
+                </div>
+            </div>
+            <div class="scroll-step" data-target="2">
+                <div class="step-num">STEP 02</div>
+                <div class="step-title">Upload and go. <br> The platform takes over.</div>
+
+                <div class="step-text">
+                    No configuration. No prompting. No setup wizards.
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════ PHASE 2: ARCHITECTURE ═══════════════ -->
+    <div class="phase-divider"></div>
+    <div id="phase-2" class="phase-header phase-2">
+        <div class="phase-label">Phase 2 • Architecture</div>
+        <h2>From Ambiguous Intent to complete Engineering Blueprint</h2>
+        <p style="font-weight:600;color:#fafafa;font-size:1.1rem;">The platform works top-down — starting with broad,
+            high-level
+            specs and getting progressively more granular with each document.</p>
+
+
+        <div
+            style="display:flex;flex-direction:column;gap:10px;text-align:left;max-width:540px;margin:0 auto 1.5rem;font-size:1rem;color:#d4d4d8;">
+            <p style="margin-bottom:1.5rem;color:#e4e4e7;">Every spec goes through three cycles:
+            </p>
+
+            <div><strong style="color:#60a5fa;">Clarify</strong> — extract assumptions, surface gaps</div>
+            <div><strong style="color:#4ade80;">Generate</strong> — produce structured specs</div>
+            <div><strong style="color:#f59e0b;">Validate</strong> — cross-check consistency, dependencies, and risk
+            </div>
+        </div>
+
+
+    </div>
+
+    <div class="progress-dots">
+        <div class="dot" data-step="3"></div>
+        <div class="dot" data-step="4"></div>
+        <div class="dot" data-step="5"></div>
+    </div>
+
+    <div class="sticky-section" data-phase="architecture">
+        <div class="sticky-visual">
+            <!-- Step 03: Clarifications -->
+            <div class="mockup-frame active" data-step="3">
+                <div class="mockup-chrome">
+                    <div class="mockup-dot r"></div>
+                    <div class="mockup-dot y"></div>
+                    <div class="mockup-dot g"></div>
+                    <span class="mockup-chrome-title">Solution Architect Workspace — Clarifications</span>
+                </div>
+                <div style="padding:20px;">
+                    <!-- Header row -->
+                    <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                        <div
+                            style="width:28px;height:28px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:.72rem;">
+                            ⚠️</div>
+                        <div>
+                            <div style="display:flex;gap:6px;align-items:center;margin-bottom:2px;">
+                                <span class="mockup-badge red" style="border-radius:4px;">HIGH</span>
+                            </div>
+                            <div style="font-size:.82rem;color:#fafafa;font-weight:600;">Error Handling and Retry Logic
+                                in Bulk Upload Workflows</div>
+                            <div style="font-size:.62rem;color:#9ca3af;margin-top:2px;">Need clarification on: What are
+                                the detailed steps for handling errors, retries, and partial successes during bulk CSV
+                                uplo...</div>
+                        </div>
+                    </div>
+                    <div style="height:1px;background:#27272a;margin:14px 0;"></div>
+                    <!-- Need Clarification On -->
+                    <div style="font-size:.72rem;font-weight:600;color:#e4e4e7;margin-bottom:8px;">Need Clarification
+                        On:</div>
+                    <div class="context-box" style="font-size:.68rem;line-height:1.7;color:#93c5fd;">What are the
+                        detailed steps for handling errors, retries, and partial successes during bulk CSV uploads for
+                        entities like lenses, frames, users, and stores? This clarification is needed to define granular
+                        workflow branches for error scenarios, ensuring developers can implement consistent UI feedback
+                        and recovery paths.</div>
+                    <!-- Context Available -->
+                    <div style="font-size:.72rem;font-weight:600;color:#e4e4e7;margin:14px 0 8px;">Context Available:
+                    </div>
+                    <div
+                        style="background:#1c1c1f;border:1px solid #27272a;border-radius:6px;padding:10px 14px;font-size:.68rem;color:#a1a1aa;line-height:1.7;">
+                        L1-WF describes bulk CSV upload processes with validation for existing/new items, rejection of
+                        invalid rows, and insertion of correct ones, including confirmation messages.</div>
+                    <!-- Select Resolution -->
+                    <div style="font-size:.72rem;font-weight:600;color:#e4e4e7;margin:16px 0 10px;">Select Resolution:
+                    </div>
+                    <div class="mockup-option" style="border-color:#3b82f6;">
+                        <div class="radio"
+                            style="border-color:#3b82f6;background:#3b82f6;box-shadow:inset 0 0 0 2px #18181b;"></div>
+                        <div><strong style="color:#f97316;font-size:.65rem;">OPTION 1</strong><br><span
+                                style="font-size:.68rem;">Display a summary modal post-upload with categorized error
+                                counts and a downloadable error CSV; include a 'Retry Upload' button with auto-retry for
+                                transient issues limited to 3 attempts.</span></div>
+                    </div>
+                    <div class="mockup-option">
+                        <div class="radio"></div>
+                        <div><strong style="color:#f97316;font-size:.65rem;">OPTION 2</strong><br><span
+                                style="font-size:.68rem;">Use inline row-level highlighting in a preview table before
+                                confirmation; stream uploads to Blob and trigger batch job with UI polling every 10s for
+                                status.</span></div>
+                    </div>
+                    <div class="mockup-option" style="opacity:.6;">
+                        <div class="radio"></div>
+                        <div><strong style="color:#f97316;font-size:.65rem;">CUSTOM RESOLUTION</strong><br><span
+                                style="font-size:.68rem;color:#52525b;font-style:italic;">Describe your custom
+                                resolution...</span></div>
+                    </div>
+                </div>
+            </div>
+            <!-- Step 04: Draft Document (dark theme, matches solution layout) -->
+            <div class="mockup-frame" data-step="4">
+                <div class="mockup-chrome">
+                    <div class="mockup-dot r"></div>
+                    <div class="mockup-dot y"></div>
+                    <div class="mockup-dot g"></div>
+                    <span class="mockup-chrome-title">Solution Architect Workspace — Document Draft</span>
+                </div>
+                <!-- Tab bar (dark) -->
+                <div
+                    style="display:flex;justify-content:center;gap:0;border-bottom:1px solid #3f3f46;background:#18181b;padding:0 20px;">
+                    <div
+                        style="padding:10px 24px;font-size:.7rem;color:#9ca3af;font-weight:500;cursor:default;display:flex;align-items:center;gap:4px;">
+                        <span style="font-size:.72rem;">💡</span> Clarifications
+                    </div>
+                    <div
+                        style="padding:10px 24px;font-size:.7rem;color:#e4e4e7;font-weight:600;cursor:default;border-bottom:2px solid #e4e4e7;margin-bottom:-1px;display:flex;align-items:center;gap:4px;">
+                        <span style="font-size:.72rem;">📄</span> Document
+                    </div>
+                    <div
+                        style="padding:10px 24px;font-size:.7rem;color:#9ca3af;font-weight:500;cursor:default;display:flex;align-items:center;gap:4px;">
+                        <span style="font-size:.72rem;">✅</span> Validation
+                    </div>
+                </div>
+                <!-- Document Draft header (dark) -->
+                <div style="background:#1f1f23;padding:16px 24px;border-bottom:1px solid #3f3f46;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+                        <span style="font-size:1rem;">📋</span>
+                        <span style="font-size:.82rem;font-weight:700;color:#e4e4e7;">Document Draft: High-Level Design
+                            Document</span>
+                    </div>
+                    <div style="font-size:0.68rem;color:#6b7280;padding-left:28px;">This is the draft version of your
+                        document. Review the content to ensure accuracy and completeness.</div>
+                </div>
+                <!-- Preview / Edit / Review Changes toolbar (dark) -->
+                <div
+                    style="background:#1f1f23;padding:8px 24px;border-bottom:1px solid #3f3f46;display:flex;justify-content:flex-end;gap:4px;">
+                    <div
+                        style="display:flex;align-items:center;gap:4px;background:#e4e4e7;color:#18181b;padding:5px 12px;border-radius:6px;font-size:.62rem;font-weight:600;cursor:default;">
+                        <span style="font-size:.62rem;">👁</span> Preview
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:4px;background:#27272a;color:#9ca3af;padding:5px 12px;border-radius:6px;font-size:.62rem;font-weight:500;border:1px solid #3f3f46;cursor:default;">
+                        <span style="font-size:.62rem;">✏️</span> Edit
+                    </div>
+                    <div
+                        style="display:flex;align-items:center;gap:4px;color:#9ca3af;padding:5px 12px;font-size:.62rem;font-weight:500;cursor:default;">
+                        <span style="font-size:.62rem;">📝</span> Review Changes
+                    </div>
+                </div>
+                <!-- Rendered markdown content (dark theme) -->
+                <div
+                    style="background:#18181b;padding:28px 32px;max-height:360px;overflow-y:auto;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,Arial,sans-serif;">
+                    <!-- Document title -->
+                    <div
+                        style="font-size:.92rem;font-weight:700;color:#e4e4e7;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #3f3f46;">
+                        L1-HLD: High-Level Design (HLD) Document</div>
+                    <!-- Architecture Overview heading -->
+                    <div style="font-size:.82rem;font-weight:700;color:#e4e4e7;margin-bottom:10px;">Architecture
+                        Overview</div>
+                    <!-- Real text content -->
+                    <p style="font-size:.72rem;color:#a1a1aa;line-height:1.7;margin-bottom:10px;">The customer's
+                        channel partner solution follows a microservices-ready modular architecture initially
+                        deployed as a unified codebase on Azure. The system comprises a mobile application for Channel
+                        Partners, a web portal for Admin and KAM users, and a backend API layer that orchestrates
+                        business logic, data persistence, and external integrations. The architecture is designed to
+                        support approximately 500 concurrent users with sub-3 second response times and 99.5% uptime
+                        SLA.</p>
+                    <p style="font-size:.72rem;color:#a1a1aa;line-height:1.7;margin-bottom:16px;">The solution adopts a
+                        three-tier architecture with clear separation between presentation (mobile/web clients),
+                        business logic (backend services), and data persistence (PostgreSQL and Azure Blob Storage). All
+                        components communicate via RESTful APIs secured with JWT-based authentication and role-based
+                        access control, following a last-write-wins concurrency model for operational simplicity.</p>
+                    <!-- Architecture diagram (dark theme) -->
+                    <div
+                        style="background:#1f1f23;border:1px solid #3f3f46;border-radius:8px;padding:20px;margin-bottom:16px;">
+                        <!-- Client Layer -->
+                        <div style="text-align:center;margin-bottom:6px;">
+                            <span
+                                style="font-size:.6rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Client
+                                Layer</span>
+                        </div>
+                        <div style="display:flex;gap:10px;justify-content:center;margin-bottom:4px;">
+                            <div
+                                style="background:rgba(99,102,241,.15);border:1px solid #6366f1;padding:8px 20px;border-radius:6px;font-size:.65rem;color:#a5b4fc;text-align:center;font-weight:500;">
+                                Mobile App<br><span style="font-size:.52rem;color:#818cf8;">Cross-Platform</span></div>
+                            <div
+                                style="background:rgba(99,102,241,.15);border:1px solid #6366f1;padding:8px 20px;border-radius:6px;font-size:.65rem;color:#a5b4fc;text-align:center;font-weight:500;">
+                                Web Portal<br><span style="font-size:.52rem;color:#818cf8;">SPA</span></div>
+                        </div>
+                        <div style="text-align:center;color:#52525b;font-size:.8rem;margin:4px 0;">↓</div>
+                        <!-- Application Layer -->
+                        <div style="text-align:center;margin-bottom:6px;">
+                            <span
+                                style="font-size:.6rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Application
+                                Layer</span>
+                        </div>
+                        <div
+                            style="background:rgba(139,92,246,.1);border:1px solid rgba(139,92,246,.3);border-radius:8px;padding:10px;margin-bottom:4px;">
+                            <div style="text-align:center;margin-bottom:6px;">
+                                <span style="font-size:.55rem;color:#a78bfa;font-weight:500;">Backend Services</span>
+                            </div>
+                            <div style="display:flex;gap:6px;justify-content:center;flex-wrap:wrap;">
+                                <div
+                                    style="background:rgba(99,102,241,.12);border:1px solid rgba(165,180,252,.3);padding:5px 10px;border-radius:5px;font-size:.58rem;color:#a5b4fc;text-align:center;">
+                                    Auth Service</div>
+                                <div
+                                    style="background:rgba(99,102,241,.12);border:1px solid rgba(165,180,252,.3);padding:5px 10px;border-radius:5px;font-size:.58rem;color:#a5b4fc;text-align:center;">
+                                    Lead Service</div>
+                                <div
+                                    style="background:rgba(99,102,241,.12);border:1px solid rgba(165,180,252,.3);padding:5px 10px;border-radius:5px;font-size:.58rem;color:#a5b4fc;text-align:center;">
+                                    Quotation Service</div>
+                                <div
+                                    style="background:rgba(99,102,241,.12);border:1px solid rgba(165,180,252,.3);padding:5px 10px;border-radius:5px;font-size:.58rem;color:#a5b4fc;text-align:center;">
+                                    Master Data</div>
+                                <div
+                                    style="background:rgba(99,102,241,.12);border:1px solid rgba(165,180,252,.3);padding:5px 10px;border-radius:5px;font-size:.58rem;color:#a5b4fc;text-align:center;">
+                                    Notification</div>
+                            </div>
+                        </div>
+                        <div style="text-align:center;color:#52525b;font-size:.8rem;margin:4px 0;">↓</div>
+                        <!-- Data + External -->
+                        <div style="display:flex;gap:10px;justify-content:center;">
+                            <div style="flex:1;">
+                                <div style="text-align:center;margin-bottom:4px;"><span
+                                        style="font-size:.55rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Data
+                                        Layer</span></div>
+                                <div style="display:flex;gap:4px;justify-content:center;">
+                                    <div
+                                        style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);padding:5px 10px;border-radius:5px;font-size:.55rem;color:#fbbf24;text-align:center;">
+                                        PostgreSQL</div>
+                                    <div
+                                        style="background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);padding:5px 10px;border-radius:5px;font-size:.55rem;color:#fbbf24;text-align:center;">
+                                        Azure Blob</div>
+                                </div>
+                            </div>
+                            <div style="flex:1;">
+                                <div style="text-align:center;margin-bottom:4px;"><span
+                                        style="font-size:.55rem;font-weight:600;color:#9ca3af;text-transform:uppercase;letter-spacing:.05em;">Infrastructure</span>
+                                </div>
+                                <div style="display:flex;gap:4px;justify-content:center;flex-wrap:wrap;">
+                                    <div
+                                        style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);padding:4px 8px;border-radius:4px;font-size:.52rem;color:#34d399;text-align:center;">
+                                        Service Bus</div>
+                                    <div
+                                        style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);padding:4px 8px;border-radius:4px;font-size:.52rem;color:#34d399;text-align:center;">
+                                        Key Vault</div>
+                                    <div
+                                        style="background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.3);padding:4px 8px;border-radius:4px;font-size:.52rem;color:#34d399;text-align:center;">
+                                        Monitor</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Next section hint -->
+                    <div style="font-size:.82rem;font-weight:700;color:#e4e4e7;margin-bottom:8px;">System Components
+                        Descriptions</div>
+                    <p style="font-size:.72rem;color:#a1a1aa;line-height:1.7;margin-bottom:8px;">The system is organized
+                        into distinct functional components that maintain logical boundaries while being deployed as a
+                        unified application initially.<span class="anim-cursor"></span></p>
+                </div>
+            </div>
+            <!-- Step 05: Validation -->
+            <div class="mockup-frame" data-step="5">
+                <div class="mockup-chrome">
+                    <div class="mockup-dot r"></div>
+                    <div class="mockup-dot y"></div>
+                    <div class="mockup-dot g"></div>
+                    <span class="mockup-chrome-title">Solution Architect Workspace — Document Validation</span>
+                </div>
+                <div style="padding:20px;">
+                    <div style="display:flex;gap:10px;align-items:center;margin-bottom:16px;">
+                        <span class="mockup-badge red">5 High</span>
+                        <span class="mockup-badge amber">10 Medium</span>
+                        <span class="mockup-badge blue">5 Low</span>
+                    </div>
+                    <!-- Validation Issue Card -->
+                    <div class="mockup-card" style="border:1px solid #27272a;padding:0;">
+                        <!-- Issue header -->
+                        <div
+                            style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid #27272a;">
+                            <div
+                                style="width:28px;height:28px;border-radius:50%;background:#fef3c7;display:flex;align-items:center;justify-content:center;font-size:.7rem;">
+                                ⚠️</div>
+                            <div style="flex:1;">
+                                <div style="display:flex;gap:6px;align-items:center;margin-bottom:2px;">
+                                    <span class="mockup-badge slate"
+                                        style="border-radius:4px;font-size:.58rem;">SEVERITY: LOW</span>
+                                    <span class="mockup-badge amber"
+                                        style="border-radius:4px;font-size:.58rem;">Gap</span>
+                                </div>
+                                <div style="font-size:.78rem;color:#fafafa;font-weight:600;">Unlimited Nesting in
+                                    Builders May Lead to Performance Degradation</div>
+                                <div style="font-size:.6rem;color:#9ca3af;margin-top:2px;">L3-WF-WEBPRT Sections 4.4 and
+                                    4.5 allow unlimited nesting depth in store group and promotion builder...</div>
+                            </div>
+                        </div>
+                        <!-- Issue body -->
+                        <div style="padding:14px 16px;">
+                            <div style="font-size:.72rem;font-weight:600;color:#e4e4e7;margin-bottom:8px;">Issue
+                                Description:</div>
+                            <div
+                                style="background:#1c1c1f;border:1px solid #27272a;border-radius:6px;padding:10px 14px;font-size:.68rem;color:#a1a1aa;line-height:1.7;margin-bottom:14px;">
+                                Sections 4.4 and 4.5 allow unlimited nesting depth in store group and promotion
+                                builders. This extends L1-WF Sections 3.7 and 3.9 nested filtering without limits,
+                                risking complex queries at scale of 5,000 stores and 100,000 SKUs.</div>
+                            <div style="font-size:.72rem;font-weight:600;color:#e4e4e7;margin-bottom:8px;">Impact:</div>
+                            <div
+                                style="background:#1c1c1f;border:1px solid #27272a;border-radius:6px;padding:10px 14px;font-size:.68rem;color:#a1a1aa;line-height:1.7;margin-bottom:14px;">
+                                Admins could create inefficient configurations causing slow previews, evaluations, or
+                                timeouts. Impacts usability during group resolution or promotion checks.</div>
+                            <div style="font-size:.72rem;font-weight:600;color:#e4e4e7;margin-bottom:10px;">Select
+                                Resolution:</div>
+                            <div class="mockup-option" style="border-color:#3b82f6;">
+                                <div class="radio"
+                                    style="border-color:#3b82f6;background:#3b82f6;box-shadow:inset 0 0 0 2px #18181b;">
+                                </div>
+                                <div><strong style="color:#ef4444;font-size:.65rem;">FIX OPTION 1</strong><br><span
+                                        style="font-size:.68rem;">Add maximum nesting depth limit (e.g., 5-10 levels) to
+                                        builder descriptions in Sections 4.4 and 4.5.</span></div>
+                            </div>
+                            <div class="mockup-option">
+                                <div class="radio"></div>
+                                <div><strong style="color:#ef4444;font-size:.65rem;">FIX OPTION 2</strong><br><span
+                                        style="font-size:.68rem;">Include server-side complexity checks (e.g., node
+                                        count limits) to reject excessive nesting on save.</span></div>
+                            </div>
+                            <div class="mockup-option" style="opacity:.6;">
+                                <div class="radio"></div>
+                                <div><strong style="color:#ef4444;font-size:.65rem;">CUSTOM FIX</strong><br><span
+                                        style="font-size:.68rem;color:#52525b;font-style:italic;">Describe your custom
+                                        fix...</span></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="sticky-narrative">
+            <div class="scroll-step" data-target="3">
+                <div class="step-num">STEP 03</div>
+                <div class="step-title">Answer targeted questions</div>
+                <div class="step-text">
+                    The AI asks precise, context-aware questions to make judgement calls on solution being built.
+                    <br><br>
+                    Each question shows context extracted from your documents, plus suggested options. Pick one, or
+                    write a custom answer. Click "Apply Selection" and move on.<br><br>
+                    Every answer resolves a specific gap — confirming logic edges, validating assumptions, locking down
+                    constraints.
+                </div>
+            </div>
+            <div class="scroll-step" data-target="4">
+                <div class="step-num">STEP 04</div>
+                <div class="step-title">Generate the Blueprint.</div>
+                <div class="step-text">
+                    The platform produces the full spec (HLD, LLD, API Contracts) that are <strong>aligned by
+                        design</strong>.
+                    <br><br>
+                    This isn't just a document—it's a computational model of the software. <br><br> Review it, edit if
+                    needed, and submit it for extensive cross-document validation.
+                </div>
+            </div>
+            <div class="scroll-step" data-target="5">
+                <div class="step-num">STEP 05</div>
+                <div class="step-title">Autonomous Validation.</div>
+                <div class="step-text">
+                    Architecture is trade-offs — and every decision in this document ripples across 30+ others already
+                    locked in. <br> <br> The platform cross-checks all of them for logical conflicts, API mismatches,
+                    and breaking
+                    changes. Each issue shows severity and fix options. <br> <br>Pick a fix. Apply.
+                    Done.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- FileSpace bridge text -->
+    <div
+        style="background: linear-gradient(180deg, #09090b 0%, #0a0f1a 40%, #0a0f1a 60%, #09090b 100%); padding-bottom: 4rem;">
+        <div class="spec-complete-bridge" style="max-width:680px;margin:0 auto;padding:6rem 2rem 0;text-align:center;">
+
+            <div style="font-size:.72rem;font-weight:600;letter-spacing:.1em;color:#3b82f6;margin-bottom:.6rem;">SPEC
+                COMPLETE</div>
+            <div style="font-size:1rem;color:#e4e4e7;line-height:1.6;margin-bottom:2rem;font-weight:500;">
+                <div style="margin-bottom:6px;">Before a single line of code is written, we have a <strong>Validated
+                        Execution Blueprint</strong>.</div>
+            </div>
+
+            <div style="font-size:.92rem;color:#9ca3af;line-height:1.75;margin-bottom:1.5rem;">
+                Every document — HLD, LLD, FRS, NFRS, Workflows, Component Maps — is detailed, cross-referenced, and
+                validated against every other. Every architecture decision, API contract, data model, and integration
+                point is defined.
+            </div>
+
+            <div style="font-size:1.2rem;font-weight:700;color:#3b82f6;letter-spacing:.02em;">
+                Zero Ambiguity. Zero Drift. Predictable Delivery.
+            </div>
+        </div>
+
+        <!-- Spec document viewer with real markdown rendering -->
+        <div class="transition-card">
+            <div class="mockup-frame" style="overflow:visible;">
+                <div class="mockup-chrome">
+                    <div class="mockup-dot r"></div>
+                    <div class="mockup-dot y"></div>
+                    <div class="mockup-dot g"></div>
+                    <span class="mockup-chrome-title">FileSpace — L1-HLD.md • Auto-Generated Spec Document</span>
+                </div>
+                <div style="display:grid;grid-template-columns:200px 1fr;min-height:580px;">
+                    <!-- Left: doc list (dark sidebar) -->
+                    <div
+                        style="border-right:1px solid #3f3f46;padding:14px;overflow-y:auto;max-height:580px;background:#18181b;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+                            <div class="mockup-label" style="margin:0;">42 Documents</div>
+                            <div class="mockup-btn outline" style="font-size:.58rem;padding:2px 6px;">⬇</div>
+                        </div>
+                        <div
+                            style="padding:6px 8px;background:#1e3a5f;border-radius:5px;margin-bottom:2px;font-size:.66rem;color:#60a5fa;cursor:default;">
+                            📄 L1-HLD.md</div>
+                        <div
+                            style="padding:6px 8px;border-radius:5px;margin-bottom:2px;font-size:.66rem;color:#9ca3af;">
+                            📄
+                            L1-FRS.md</div>
+                        <div
+                            style="padding:6px 8px;border-radius:5px;margin-bottom:2px;font-size:.66rem;color:#9ca3af;">
+                            📄
+                            L1-OVERVIEW.md</div>
+
+                        <div
+                            style="padding:6px 8px;border-radius:5px;margin-bottom:2px;font-size:.66rem;color:#9ca3af;">
+                            📐
+                            L1-RAD.md</div>
+                        <div
+                            style="padding:6px 8px;border-radius:5px;margin-bottom:2px;font-size:.66rem;color:#9ca3af;">
+                            📝
+                            L1-SI.md</div>
+                        <div
+                            style="padding:6px 8px;border-radius:5px;margin-bottom:2px;font-size:.66rem;color:#9ca3af;">
+                            ⚙️
+                            L1-NFRS.md</div>
+                        <div
+                            style="padding:6px 8px;border-radius:5px;margin-bottom:2px;font-size:.66rem;color:#9ca3af;">
+                            🧪
+                            L1-TSD.md</div>
+
+                        <div
+                            style="padding:6px 8px;border-radius:5px;margin-bottom:2px;font-size:.66rem;color:#9ca3af;">
+                            📊
+                            L1-NFRS.md</div>
+
+                        <div style="text-align:center;font-size:.58rem;color:#3f3f46;margin-top:4px;">+ 34 more</div>
+                    </div>
+                    <!-- Right: rendered markdown with dark theme -->
+                    <div id="spec-md-viewer"
+                        style="overflow-y:auto;max-height:580px;background:#18181b;border-radius:0 0 10px 0;"></div>
+                </div>
+            </div>
+        </div>
+
+
+
+        <!-- ═══════════════ PHASE 3: SPRINT PLAN ═══════════════ -->
+        <div class="phase-divider"></div>
+        <div id="phase-3" class="phase-header">
+            <div class="phase-label">Phase 3 • Sprint Plan</div>
+            <h2>Sprints and tasks: Auto-generated</h2>
+            <p>The spec becomes a project plan — automatically.
+                The platform decomposes the validated specification into sprints, tasks, and dependencies.
+                <br><br>
+                Build order
+                is determined by the architecture itself: infrastructure first, then core services, then features.
+                <br><br>
+                No PM
+                required.
+            </p>
+        </div>
+
+        <div class="progress-dots">
+            <div class="dot" data-step="6"></div>
+            <div class="dot" data-step="7"></div>
+        </div>
+
+        <div class="sticky-section" data-phase="sprint">
+            <div class="sticky-visual">
+                <!-- Step 06: Sprint List -->
+                <div class="mockup-frame active" data-step="6">
+                    <div class="mockup-chrome">
+                        <div class="mockup-dot r"></div>
+                        <div class="mockup-dot y"></div>
+                        <div class="mockup-dot g"></div>
+                        <span class="mockup-chrome-title">Sprint Planner — Auto-Generated</span>
+                    </div>
+                    <div style="padding:20px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+                            <div class="mockup-h3" style="margin:0;">10 Sprints <span
+                                    style="font-size:.7rem;color:#9ca3af;font-weight:400;">• 63 tasks total</span></div>
+                            <span class="mockup-badge green">Auto-Generated</span>
+                        </div>
+                        <div class="sprint-list">
+                            <div class="sprint-row anim-fade1"><span class="sprint-id">S1</span><span
+                                    class="sprint-name">Core Infrastructure & Secure Authentication</span><span
+                                    class="sprint-tasks">7 tasks</span></div>
+                            <div class="sprint-row anim-fade1"><span class="sprint-id">S2</span><span
+                                    class="sprint-name">Lead Lifecycle & Audit Foundations</span><span
+                                    class="sprint-tasks">7 tasks</span></div>
+                            <div class="sprint-row anim-fade2"><span class="sprint-id">S3</span><span
+                                    class="sprint-name">Quotation Engine, Master Data & Performance</span><span
+                                    class="sprint-tasks">6 tasks</span></div>
+                            <div class="sprint-row anim-fade2"><span class="sprint-id">S4</span><span
+                                    class="sprint-name">Document & KYC Management</span><span class="sprint-tasks">6
+                                    tasks</span></div>
+                            <div class="sprint-row anim-fade3"><span class="sprint-id">S5</span><span
+                                    class="sprint-name">Commission Lifecycle & Notification Feed</span><span
+                                    class="sprint-tasks">6 tasks</span></div>
+                            <div class="sprint-row anim-fade3"><span class="sprint-id">S6</span><span
+                                    class="sprint-name">User, Partner & Profile Management</span><span
+                                    class="sprint-tasks">4 tasks</span></div>
+                            <div class="sprint-row anim-fade4"><span class="sprint-id">S7</span><span
+                                    class="sprint-name">Bulk Operations & Analytics Dashboard</span><span
+                                    class="sprint-tasks">5 tasks</span></div>
+                            <div class="sprint-row anim-fade4"><span class="sprint-id">S8</span><span
+                                    class="sprint-name">Support Tickets & Service Catalogue</span><span
+                                    class="sprint-tasks">5 tasks</span></div>
+                            <div class="sprint-row anim-fade5"><span class="sprint-id">S9</span><span
+                                    class="sprint-name">Production Hardening & Disaster-Recovery</span><span
+                                    class="sprint-tasks">6 tasks</span></div>
+                            <div class="sprint-row anim-fade5"><span class="sprint-id">S10</span><span
+                                    class="sprint-name">Adding Missing Endpoints</span><span class="sprint-tasks">11
+                                    tasks</span></div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Step 07: Task Detail -->
+                <div class="mockup-frame" data-step="7">
+                    <div class="mockup-chrome">
+                        <div class="mockup-dot r"></div>
+                        <div class="mockup-dot y"></div>
+                        <div class="mockup-dot g"></div>
+                        <span class="mockup-chrome-title">Task Detail — S1-TASK-01</span>
+                    </div>
+                    <div style="padding:20px;">
+                        <div style="display:flex;gap:8px;margin-bottom:12px;">
+                            <span class="mockup-badge slate">Infrastructure</span>
+                            <span class="mockup-badge amber">Large</span>
+                        </div>
+                        <div class="mockup-h3">Backend Foundation & Database Scaffolding</div>
+                        <div class="mockup-p" style="margin-bottom:14px;">Creates the complete NestJS–Fastify project
+                            skeleton, environment/config plumbing and baseline PostgreSQL layer with migration tooling
+                            and
+                            container support.</div>
+                        <div class="mockup-label">Implementation Steps</div>
+                        <div style="font-size:.7rem;color:#a1a1aa;line-height:1.8;margin-bottom:14px;">
+                            <div style="color:#4ade80;">✓ Generate NestJS project with Fastify adapter</div>
+                            <div style="color:#4ade80;">✓ Add @nestjs/config with Joi schema</div>
+                            <div style="color:#4ade80;">✓ Create Dockerfile and docker-compose</div>
+                            <div style="color:#4ade80;">✓ Add TypeORM DataSource + Knex migration config</div>
+                            <div style="color:#4ade80;">✓ Implement /health & /ready controllers</div>
+                            <div style="color:#4ade80;">✓ Enable CORS & Swagger module</div>
+                        </div>
+                        <div class="mockup-label">Acceptance Criteria</div>
+                        <div style="font-size:.68rem;color:#9ca3af;line-height:1.8;">
+                            <div><code
+                                    style="color:#e4e4e7;background:#27272a;padding:1px 6px;border-radius:3px;font-size:.62rem;">docker-compose up</code>
+                                starts backend on :3000</div>
+                            <div><code
+                                    style="color:#e4e4e7;background:#27272a;padding:1px 6px;border-radius:3px;font-size:.62rem;">curl /health</code>
+                                returns <code
+                                    style="color:#4ade80;background:#27272a;padding:1px 6px;border-radius:3px;font-size:.62rem;">{ status: 'ok' }</code>
+                            </div>
+                            <div><code
+                                    style="color:#e4e4e7;background:#27272a;padding:1px 6px;border-radius:3px;font-size:.62rem;">npm run migrate</code>
+                                creates knex_migrations table</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sticky-narrative">
+                <div class="scroll-step" data-target="6">
+                    <div class="step-num">STEP 06</div>
+                    <div class="step-title">Auto-generate Sprints</div>
+                    <div class="step-text">
+                        The platform analyzes the validated specification model and derives the logical build sequence.
+                        <br><br>
+                        It automatically:
+                        <br>• Maps technical dependencies
+                        <br>• Determines execution order
+                        <br>• Structures work into sprint increments
+                        <br><br>
+                    </div>
+                </div>
+                <div class="scroll-step" data-target="7">
+                    <div class="step-num">STEP 07</div>
+                    <div class="step-title">Auto-generate <strong>Executable</strong> Tasks</div>
+                    <div class="step-text">
+                        Each task includes:
+                        <br>• Clear objective & context
+                        <br>• Implementation guidance
+                        <br>• Acceptance criteria (Tests)
+                        <br>• Explicit dependencies
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══════════════ PHASE 4: CODE & TEST ═══════════════ -->
+        <div class="phase-divider"></div>
+        <div id="phase-4" class="phase-header phase-4">
+            <div class="phase-label">Phase 4 • Code & Test</div>
+            <h2>One click — Code is generated</h2>
+            <p>The developer opens a task. The platform writes the code against the spec, generates tests from the spec,
+                and validates alignment. <br> <br> This isn't assisted coding — it's production-grade generation. The
+                result
+                is
+                shipping software, not a prototype.
+            </p>
+        </div>
+
+        <div class="progress-dots">
+            <div class="dot" data-step="8"></div>
+            <div class="dot" data-step="9"></div>
+        </div>
+
+        <div class="sticky-section" data-phase="code">
+            <div class="sticky-visual">
+                <!-- Step 08: Code Generation -->
+                <div class="mockup-frame active" data-step="8" id="cm-mockup">
+                    <div class="mockup-chrome">
+                        <div class="mockup-dot r"></div>
+                        <div class="mockup-dot y"></div>
+                        <div class="mockup-dot g"></div>
+                        <span class="mockup-chrome-title">Coding Module v1.1.2</span>
+                    </div>
+                    <!-- Header bar -->
+                    <div class="cm-header">
+                        <div class="cm-header-left">
+                            <div class="cm-header-logo">Coding Module <span class="cm-header-version">v1.1.2</span>
+                            </div>
+                        </div>
+                        <div class="cm-header-tabs">
+                            <div class="cm-header-tab"><span class="cm-header-tab-icon">📋</span> Task Board</div>
+                            <div class="cm-header-tab active"><span class="cm-header-tab-icon">⟨⟩</span> Workspace</div>
+                        </div>
+                        <div class="cm-header-right">
+                            <div class="cm-project-name"><span class="cm-project-dot"></span> Levis-BP-FE</div>
+                            <div class="cm-header-icon">⚙</div>
+                            <div class="cm-header-icon"
+                                style="width:22px;height:22px;background:#27272a;border-radius:50%;font-size:.55rem;color:#a1a1aa;">
+                                👤</div>
+                        </div>
+                    </div>
+                    <!-- Navigation / Stepper -->
+                    <div class="cm-nav-row">
+                        <div class="cm-back-btn">← Back</div>
+                        <div class="cm-stepper">
+                            <div class="cm-step done">
+                                <div class="cm-step-dot done">✓</div> Relevant Files
+                            </div>
+                            <div class="cm-step-line done"></div>
+                            <div class="cm-step done">
+                                <div class="cm-step-dot done">✓</div> Task Approach
+                            </div>
+                            <div class="cm-step-line done"></div>
+                            <div class="cm-step active">
+                                <div class="cm-step-dot active">3</div> Coding Cycle
+                            </div>
+                            <div class="cm-step-line"></div>
+                            <div class="cm-step">
+                                <div class="cm-step-dot pending">○</div> Complete This Task
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Streaming status bar -->
+                    <div class="cm-status-bar">
+                        <div class="cm-status-spinner"></div>
+                        AI is thinking and coding... Tab switching is disabled during streaming.
+                    </div>
+                    <!-- Working-on bar -->
+                    <div class="cm-working-bar">
+                        <div class="cm-working-left">
+                            <div class="cm-working-label">Currently Working on:</div>
+                            <div class="cm-task-badge">S8-TASK-002</div>
+                            <div class="cm-meta">
+                                <span class="cm-meta-item">96,794 tokens</span>
+                                <span class="cm-meta-item">1 msgs</span>
+                            </div>
+                        </div>
+                        <div class="cm-working-right">
+                            <div class="cm-new-btn">+ New</div>
+                            <div class="cm-fullscreen-btn">⛶</div>
+                        </div>
+                    </div>
+                    <!-- AI Chat area -->
+                    <div class="cm-chat-area">
+                        <div class="cm-ai-message">
+                            <div class="cm-ai-avatar">🤖</div>
+                            <div class="cm-ai-body">
+                                <div class="cm-ai-prose">
+                                    Perfect! Now I can see how the existing components work. Let me implement
+                                    <strong>Sub-task 1: Extended Upload Progress Display.</strong>
+                                    <br><br>
+                                    Based on the existing code, I'll create <code>UploadProgressDisplay</code> that uses
+                                    the existing <code>useUploadProgress</code> hook and enhances it with row count
+                                    formatting.
+                                    <br><br>
+                                    Sub-task 1 Implementation: UploadProgressDisplay Component<br>
+                                    New Component File<br>
+                                    <strong>File:</strong>
+                                    <code>src/features/admin/components/UploadProgressDisplay.tsx</code>
+                                </div>
+                                <!-- Code block -->
+                                <div class="cm-code-block">
+                                    <div class="cm-code-block-header">
+                                        <span class="cm-code-lang">typescript</span>
+                                        <span class="cm-code-copy">📋</span>
+                                    </div>
+                                    <div class="cm-code-content">
+                                        <div class="cm-stream-line"><span class="ln">1</span><span class="lc"><span
+                                                    class="code-comment">// UploadProgressDisplay.tsx</span></span>
+                                        </div>
+                                        <div class="cm-stream-line"><span class="ln">2</span><span class="lc"><span
+                                                    class="code-comment">/**</span></span></div>
+                                        <div class="cm-stream-line"><span class="ln">3</span><span class="lc"><span
+                                                    class="code-comment"> * Upload Progress Display
+                                                    Component</span></span></div>
+                                        <div class="cm-stream-line"><span class="ln">4</span><span class="lc"><span
+                                                    class="code-comment"> *</span></span></div>
+                                        <div class="cm-stream-line"><span class="ln">5</span><span class="lc"><span
+                                                    class="code-comment"> * Enhanced upload progress with row
+                                                    count</span></span></div>
+                                        <div class="cm-stream-line"><span class="ln">6</span><span class="lc"><span
+                                                    class="code-comment"> * formatting and ETA
+                                                    calculation.</span></span></div>
+                                        <div class="cm-stream-line"><span class="ln">7</span><span class="lc"><span
+                                                    class="code-comment"> */</span></span></div>
+                                        <div class="cm-stream-line"><span class="ln">8</span><span class="lc"></span>
+                                        </div>
+                                        <div class="cm-stream-line"><span class="ln">9</span><span class="lc"><span
+                                                    class="code-kw">import</span> <span class="code-type">React</span>
+                                                <span class="code-kw">from</span> <span
+                                                    class="code-str">'react'</span>;</span></div>
+                                        <div class="cm-stream-line"><span class="ln">10</span><span class="lc"><span
+                                                    class="code-kw">import</span> { <span class="code-type">Box</span>,
+                                                <span class="code-type">Typography</span>, <span
+                                                    class="code-type">LinearProgress</span> } <span
+                                                    class="code-kw">from</span> <span
+                                                    class="code-str">'@mui/material'</span>;</span></div>
+                                        <div class="cm-stream-line"><span class="ln">11</span><span class="lc"><span
+                                                    class="code-kw">import</span> { <span
+                                                    class="code-fn">useUploadProgress</span> } <span
+                                                    class="code-kw">from</span> <span
+                                                    class="code-str">'../hooks/useUploadProgress'</span>;</span></div>
+                                        <div class="cm-stream-line"><span class="ln">12</span><span class="lc"></span>
+                                        </div>
+                                        <div class="cm-stream-line"><span class="ln">13</span><span class="lc"><span
+                                                    class="code-kw">export const</span> <span
+                                                    class="code-fn">UploadProgressDisplay</span> = () =&gt; {</span>
+                                        </div>
+                                        <div class="cm-stream-line"><span class="ln">14</span><span class="lc"> <span
+                                                    class="code-kw">const</span> { progress, total, eta } = <span
+                                                    class="code-fn">useUploadProgress</span>();<span
+                                                    class="cm-stream-cursor"></span></span></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- Step 09: Verification -->
+                <!-- Step 09: Verification -->
+                <div class="mockup-frame" data-step="9">
+                    <div class="mockup-chrome">
+                        <div class="mockup-dot r"></div>
+                        <div class="mockup-dot y"></div>
+                        <div class="mockup-dot g"></div>
+                        <span class="mockup-chrome-title">Platform Dashboard — Task Completion</span>
+                    </div>
+                    <div style="padding:40px 24px;text-align:center;">
+                        <!-- Victory Badge -->
+                        <div
+                            style="width:64px;height:64px;background:#14532d;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 0 20px rgba(22,163,74,0.2);">
+                            <span style="font-size:32px;color:#4ade80;">✓</span>
+                        </div>
+
+                        <div style="font-size:1.1rem;font-weight:700;color:#fafafa;margin-bottom:24px;">All 63 Tasks
+                            Complete</div>
+
+                        <!-- Stats Row -->
+                        <div style="display:flex;justify-content:center;gap:12px;margin-bottom:32px;">
+                            <div
+                                style="background:#18181b;border:1px solid #27272a;border-left:3px solid #22c55e;padding:12px 16px;border-radius:6px;text-align:left;">
+                                <div style="font-size:.65rem;color:#9ca3af;text-transform:uppercase;">Sprints</div>
+                                <div style="font-size:.9rem;font-weight:600;color:#e4e4e7;">10 Completed</div>
+                            </div>
+                            <div
+                                style="background:#18181b;border:1px solid #27272a;border-left:3px solid #22c55e;padding:12px 16px;border-radius:6px;text-align:left;">
+                                <div style="font-size:.65rem;color:#9ca3af;text-transform:uppercase;">Tasks</div>
+                                <div style="font-size:.9rem;font-weight:600;color:#e4e4e7;">63 Completed</div>
+                            </div>
+                            <div
+                                style="background:#18181b;border:1px solid #27272a;border-left:3px solid #22c55e;padding:12px 16px;border-radius:6px;text-align:left;">
+                                <div style="font-size:.65rem;color:#9ca3af;text-transform:uppercase;">Coverage</div>
+                                <div style="font-size:.9rem;font-weight:600;color:#e4e4e7;">100% Passed</div>
+                            </div>
+                        </div>
+
+                        <!-- Completed Task List -->
+                        <div style="border:1px solid #27272a;border-radius:8px;overflow:hidden;text-align:left;">
+                            <div
+                                style="padding:10px 16px;background:#18181b;border-bottom:1px solid #27272a;display:flex;justify-content:space-between;align-items:center;">
+                                <div style="font-size:.7rem;font-weight:600;color:#a1a1aa;">RECENTLY COMPLETED</div>
+                                <div style="font-size:.6rem;color:#4ade80;">● Live Updates</div>
+                            </div>
+                            <div
+                                style="padding:10px 16px;border-bottom:1px solid #27272a;display:flex;align-items:center;gap:10px;">
+                                <div
+                                    style="width:16px;height:16px;background:#14532d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#4ade80;">
+                                    ✓</div>
+                                <div style="font-size:.75rem;color:#d4d4d8;">Implement Rate Limiting Middleware</div>
+                                <div style="margin-left:auto;font-size:.6rem;color:#9ca3af;">Just now</div>
+                            </div>
+                            <div
+                                style="padding:10px 16px;border-bottom:1px solid #27272a;display:flex;align-items:center;gap:10px;">
+                                <div
+                                    style="width:16px;height:16px;background:#14532d;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;color:#4ade80;">
+                                    ✓</div>
+                                <div style="font-size:.75rem;color:#d4d4d8;">Run Integration Tests Suite</div>
+                                <div style="margin-left:auto;font-size:.6rem;color:#9ca3af;">2m ago</div>
+                            </div>
+                            <div
+                                style="padding:10px 16px;background:#18181b;text-align:center;font-size:.65rem;color:#71717a;">
+                                + 61 more tasks completed
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="sticky-narrative">
+                <div class="scroll-step" data-target="8">
+                    <div class="step-num">STEP 08</div>
+                    <div class="step-title">Generate & Validate.</div>
+                    <div class="step-text">
+                        The platform:
+                        <br>• Identifies relevant files
+                        <br>• Applies the validated approach
+                        <br>• Generates production-grade code
+                        <br>• Writes changes directly to the repository
+                        <br>• Executes unit and regression tests automatically
+
+                    </div>
+                </div>
+                <div class="scroll-step" data-target="9">
+                    <div class="step-num">STEP 09</div>
+                    <div class="step-title">Verify and Release.</div>
+                    <div class="step-text">
+                        When all tasks are complete and tests pass, results are validated against the approved
+                        specifications.
+                        <br><br>
+                        Code is validated against architecture.
+                        Acceptance criteria are programmatically enforced.
+                        Test coverage confirms functional integrity.
+                        <br><br>
+                        What ships is not a prototype.
+                        It is specification-aligned, <br> <strong> Production-ready software.</strong>
+                    </div>
+                </div>
+            </div>
+        </div> <!-- /.sticky-section (phase=code) -->
+
+
+        <!-- ═══════════════ SCROLL JS ═══════════════ -->
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                // For each sticky section, observe its scroll-steps and
+                // toggle the matching mockup frame.
+                document.querySelectorAll('.sticky-section').forEach(section => {
+                    const visual = section.querySelector('.sticky-visual');
+                    const frames = visual.querySelectorAll('.mockup-frame');
+                    const steps = section.querySelectorAll('.scroll-step');
+
+                    const observer = new IntersectionObserver(entries => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                const targetStep = entry.target.dataset.target;
+                                frames.forEach(f => f.classList.toggle('active', f.dataset.step === targetStep));
+                                entry.target.classList.add('active'); // Add active class to step-text
+
+                                // Update progress dots
+                                const dots = document.querySelectorAll('.progress-dots .dot');
+                                dots.forEach(d => d.classList.toggle('active', d.dataset.step === targetStep));
+                            } else {
+                                entry.target.classList.remove('active'); // Remove active class when not intersecting
+                            }
+                        });
+                    }, {
+                        root: null,
+                        rootMargin: '-45% 0px -45% 0px',
+                        threshold: 0
+                    });
+
+                    steps.forEach(step => observer.observe(step));
+                });
+
+                // Scroll Reveal Observer
+                const revealObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('visible');
+                        }
+                    });
+                }, { rootMargin: '0px 0px -10% 0px' });
+
+                document.querySelectorAll('.scroll-step, .phase-header').forEach(el => {
+                    el.classList.add('reveal');
+                    revealObserver.observe(el);
+                });
+
+                // Phase Navigation Observer
+                const phaseNavItems = document.querySelectorAll('.phase-step');
+                const phases = document.querySelectorAll('.phase-header, .sticky-section'); // Observe both header and section for better coverage
+
+                const phaseObserver = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            // Identify which phase is currently active
+                            let activeId = '';
+                            if (entry.target.id) {
+                                activeId = entry.target.id;
+                            } else if (entry.target.dataset.phase) {
+                                // Map sticky section data-phase to nav ID
+                                const map = {
+                                    'discovery': 'phase-1',
+                                    'architecture': 'phase-2',
+                                    'sprint': 'phase-3',
+                                    'code': 'phase-4'
+                                };
+                                activeId = map[entry.target.dataset.phase];
+                            }
+
+                            if (activeId) {
+                                phaseNavItems.forEach(item => {
+                                    item.classList.toggle('active', item.dataset.target === activeId);
+                                });
+                            }
+                        }
+                    });
+                }, { rootMargin: '-10% 0px -50% 0px', threshold: 0 }); // Trigger when near top
+
+                phases.forEach(p => phaseObserver.observe(p));
+
+                // Coding Module streaming animation — triggered on scroll
+                const cmMockup = document.getElementById('cm-mockup');
+                if (cmMockup) {
+                    const cmObserver = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                // Small delay then start streaming
+                                setTimeout(() => {
+                                    cmMockup.querySelector('.cm-chat-area').classList.add('cm-streaming');
+                                }, 300);
+                                cmObserver.unobserve(entry.target); // Only animate once
+                            }
+                        });
+                    }, { threshold: 0.3 });
+                    cmObserver.observe(cmMockup);
+                }
+
+                // Fallback for CDN failures
+                window.addEventListener('error', function (e) {
+                    if (e.target.tagName === 'SCRIPT' && (e.target.src.includes('marked') || e.target.src.includes('mermaid'))) {
+                        const viewer = document.getElementById('spec-md-viewer');
+                        if (viewer) {
+                            viewer.innerHTML = '<div style="padding:40px;text-align:center;color:#ef4444;">Unable to load document viewer components. Please check your connection.</div>';
+                        }
+                    }
+                }, true);
+            });
+        </script>
+
+        <!-- Markdown content stored in a script tag to avoid template literal escaping issues -->
+        <script type="text/markdown" id="spec-md-content">
+# L1-HLD: High-Level Design (HLD) Document
+
+## Architecture Overview
+
+The customer's channel partner solution follows a microservices-ready modular architecture initially deployed as a unified codebase on Azure. The system comprises a mobile application for Channel Partners, a web portal for Admin and KAM users, and a backend API layer that orchestrates business logic, data persistence, and external integrations. The architecture is designed to support approximately 500 concurrent users with sub-3 second response times and 99.5% uptime SLA.
+
+The solution adopts a three-tier architecture with clear separation between presentation (mobile/web clients), business logic (backend services), and data persistence (PostgreSQL and Azure Blob Storage). All components communicate via RESTful APIs secured with JWT-based authentication and role-based access control, following a last-write-wins concurrency model for operational simplicity.
+
+```mermaid
+graph TB
+    subgraph CL["Client Layer"]
+        MA["Mobile App<br/>Cross-Platform"]
+        WP["Web Portal<br/>SPA"]
+    end
+
+    subgraph AL["Application Layer"]
+        subgraph BS["Backend Services"]
+            AS["Auth Service"]
+            LS["Lead Service"]
+            QS["Quotation Service"]
+            MS["Master Data Service"]
+            NS["Notification Service"]
+        end
+    end
+
+    subgraph DL["Data Layer"]
+        PG[("PostgreSQL<br/>Primary DB")]
+        BL[("Azure Blob<br/>Documents")]
+    end
+
+    subgraph EX["External Services"]
+        SMS["MSG91<br/>SMS Gateway"]
+        EMAIL["SendGrid<br/>Email Service"]
+    end
+
+    subgraph IN["Infrastructure"]
+        MQ["Azure Service Bus<br/>Message Queue"]
+        KV["Azure Key Vault<br/>Secrets"]
+        AM["Azure Monitor<br/>Observability"]
+    end
+
+    MA --> AS
+    MA --> LS
+    MA --> QS
+    WP --> AS
+    WP --> LS
+    WP --> QS
+    WP --> MS
+
+    AS --> PG
+    LS --> PG
+    QS --> PG
+    QS --> BL
+    MS --> PG
+
+    NS --> MQ
+    MQ --> SMS
+    MQ --> EMAIL
+
+    AS --> KV
+    LS --> KV
+    QS --> KV
+
+    AS --> AM
+    LS --> AM
+    QS --> AM
+    MS --> AM
+    NS --> AM
+```
+
+## System Components Descriptions
+
+The system is organized into distinct functional components that maintain logical boundaries while being deployed as a unified application initially. Each component encapsulates specific business capabilities and maintains its own data access patterns and business rules.
+
+### Client Components
+
+**Mobile Application (APP)**: Cross-platform mobile application for iOS and Android providing Channel Partners with lead management, quotation generation, and document upload capabilities. The app operates in online-only mode with minimal caching for transient network disruptions.
+
+**Web Portal (WEB)**: Single-page application providing administrative and KAM interfaces. Features responsive design for desktop and tablet devices with dashboard visualizations for lead funnel analytics.
+
+### Backend Service Components
+
+**Authentication Service**: Manages user authentication via OTP for mobile users and email/password for web users. Issues JWT tokens with role claims and handles session management with appropriate timeouts for different user types.
+
+**Lead Management Service**: Orchestrates all lead-related operations including CRUD operations, status transitions with mandatory remarks validation, and bulk import/assignment capabilities. Implements last-write-wins concurrency model with audit field tracking. Enforces business rules for valid status transitions with Admin-only override capability for terminal states.
+
+**Quotation Service**: Generates solar system quotations by computing pricing based on master data references, applying discount validation against configured thresholds, and creating PDF documents server-side. Maintains immutable snapshots of pricing data per quotation for audit trails.
+
+**Master Data Service**: Provides centralized management of reference data including panels, inverters, BOM items, DISCOM charges, and discount limits. Changes take immediate effect for new quotations while existing quotations retain their historical snapshots.
+
+**Notification Service**: Handles asynchronous communication through message queue integration for reliable delivery with automatic retry capabilities for transient failures.
+
+## Inter-Component Communication
+
+Components communicate through RESTful APIs over HTTPS with JSON payloads. All endpoints follow standard HTTP semantics with appropriate status codes and implement consistent error response formats. Rate limiting and request throttling are implemented at the service level to ensure system stability.
+
+### Core API Endpoints
+
+**Authentication Endpoints**:
+- `POST /api/v1/auth/register` — CP registration with pending approval workflow
+- `POST /api/v1/auth/otp/request` — OTP generation for mobile login
+- `POST /api/v1/auth/otp/verify` — OTP validation returning JWT tokens
+- `POST /api/v1/auth/login` — Email/password authentication for web users
+- `POST /api/v1/auth/refresh` — Token refresh using refresh tokens
+- `POST /api/v1/auth/logout` — Token revocation
+
+**Lead Management Endpoints**:
+- `GET /api/v1/leads` — Paginated lead listing with filters
+- `POST /api/v1/leads` — Create new lead
+- `PUT /api/v1/leads/{id}` — Update lead with last-write-wins concurrency
+- `POST /api/v1/leads/bulk-upload` — CSV import with partial acceptance
+- `POST /api/v1/leads/bulk-assign` — All-or-nothing CP assignment
+
+**Quotation Endpoints**:
+- `POST /api/v1/quotations` — Generate quotation with pricing calculation
+- `GET /api/v1/quotations/{id}/pdf` — Retrieve PDF document
+- `POST /api/v1/quotations/{id}/share` — Email quotation to customer
+
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Auth as Auth Service
+    participant Lead as Lead Service
+    participant Quote as Quotation Service
+    participant DB as PostgreSQL
+    participant Queue as Service Bus
+
+    Client->>Auth: POST /auth/otp/request
+    Auth->>Queue: Queue SMS notification
+    Auth-->>Client: 200 OK
+
+    Client->>Lead: PUT /leads/{id}
+    Lead->>Auth: Validate token
+    Lead->>DB: UPDATE with last-write-wins
+    Lead-->>Client: 200 OK
+
+    Client->>Quote: POST /quotations
+    Quote->>DB: Fetch master data
+    Quote->>Quote: Calculate pricing
+    Quote->>DB: Store with snapshot
+    Quote-->>Client: 201 Created
+```
+
+## Data Architecture Details
+
+The data architecture employs PostgreSQL as the primary transactional database with appropriate schema design for structured data and semi-structured quotation snapshots. Azure Blob Storage handles document persistence with metadata references in the database.
+
+### Data Storage Strategy
+
+**Relational Data**: PostgreSQL hosts all structured data with proper normalization for entities like users, leads, quotations, and master data. The database implements a last-write-wins concurrency model with audit fields (updated_by, updated_at) for change tracking. Connection pooling is configured appropriately for the expected load.
+
+**Document Storage**: Azure Blob Storage with hierarchical container organization segregates documents by type. Supported formats include PDF, JPG, and PNG files up to 10MB each. Versioning is enabled with configurable retention policies based on business requirements.
+
+**Session Management**: User sessions and JWT blacklisting are managed through database tables with appropriate TTL policies for different user types.
+
+### Data Flow Patterns
+
+The system implements clear data flow patterns for major operations. Lead creation flows from client to Lead Service, persisting in PostgreSQL with audit fields. Quotation generation retrieves master data, calculates pricing, stores immutable snapshots, and generates PDFs stored in Blob Storage.
+
+## Security Architecture Overview
+
+Security implementation follows defense-in-depth principles with multiple layers of protection. The architecture addresses authentication, authorization, data protection, and compliance requirements appropriate for the solution scale.
+
+### Authentication and Authorization
+
+**Authentication Mechanisms**: JWT-based authentication with appropriate token lifecycles for different user types. Mobile users authenticate via OTP with rate limiting. Web users authenticate with email/password including account lockout after multiple failed attempts.
+
+**Authorization Framework**: Role-based access control (RBAC) with three primary roles (CP, Admin, KAM). Token claims include user ID, role, and assigned CP list for scope filtering. API-level authorization checks validate permissions before processing requests.
+
+### Data Protection Strategies
+
+**Encryption**: TLS 1.2+ for all data in transit. Transparent data encryption for database at rest. Azure Storage Service Encryption for blob storage with managed keys.
+
+**Audit and Compliance**: Comprehensive audit logging for all data modifications with who/when/what tracking. PII masking in logs and exports to meet data protection requirements. Configurable retention policies for audit logs with automated archival.
+
+## Deployment Architecture
+
+The deployment architecture leverages Azure PaaS services for simplified operations and automatic scaling.
+
+### Deployment Model
+
+**Application Deployment**: Containerized backend services deployed to Azure App Service. Horizontal scaling configured based on load thresholds. Blue-green deployment slots for zero-downtime releases.
+
+**Database Deployment**: Azure Database for PostgreSQL with automated backups and point-in-time restore capabilities. Read replicas available for analytics workloads as needed.
+
+## Constraints and Assumptions
+
+### Technical Constraints
+
+**Scale Constraints**: System designed for 500 concurrent users with headroom to 1000. API rate limiting at 100 requests per minute per user. PDF generation limited to 5 concurrent operations. OTP requests limited to 3 attempts per 20 minutes.
+
+**Integration Constraints**: MSG91 SMS gateway limited to Indian phone numbers. SendGrid email throughput capped at 100 emails per hour. Document upload size restricted to 10MB per file.
+
+### Architectural Assumptions
+
+**Business Assumptions**: Lead status transitions follow defined workflow without exceptions except for Admin overrides. Quotation prices remain valid for 30 days from generation with immutable snapshots. Master data changes apply only to newly generated quotations.
+
+**Technical Assumptions**: Network connectivity available for all operations (no offline mode). Azure platform maintains documented availability SLAs. Last-write-wins concurrency model sufficient for low-contention environment.
+    </script>
+
+        <!-- marked.js v4 (stable API) + mermaid.js CDN -->
+        <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+        <script>
+            (function () {
+                // Initialize mermaid
+                mermaid.initialize({ startOnLoad: false, theme: 'dark', securityLevel: 'loose' });
+
+                // Get markdown from the script tag
+                var mdEl = document.getElementById('spec-md-content');
+                if (!mdEl) return;
+                var mdContent = mdEl.textContent;
+
+                // Configure marked renderer — v4 API: renderer.code(code, language, isEscaped)
+                var renderer = new marked.Renderer();
+                renderer.code = function (code, lang) {
+                    if (lang === 'mermaid') {
+                        return '<div class="mermaid">' + code + '</div>';
+                    }
+                    return '<pre style="background:#1f1f23;border:1px solid #3f3f46;border-radius:6px;padding:16px;overflow-x:auto;font-size:13px;line-height:1.55;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;color:#a1a1aa;"><code>' + code + '</code></pre>';
+                };
+                marked.setOptions({ renderer: renderer, breaks: false, gfm: true });
+
+                // Render into the viewer
+                var viewer = document.getElementById('spec-md-viewer');
+                if (!viewer) return;
+                viewer.innerHTML = '<div class="md-body">' + marked.parse(mdContent) + '</div>';
+
+                // Add dark-theme styles for rendered markdown
+                var s = document.createElement('style');
+                s.textContent = '\
+            .md-body { padding:36px 40px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; color:#a1a1aa; font-size:15px; line-height:1.7; }\
+            .md-body h1 { font-size:24px; font-weight:700; color:#e4e4e7; margin:0 0 16px; padding-bottom:10px; border-bottom:2px solid #3f3f46; }\
+            .md-body h2 { font-size:20px; font-weight:600; color:#e4e4e7; margin:32px 0 14px; padding-bottom:8px; border-bottom:1px solid #3f3f46; }\
+            .md-body h3 { font-size:17px; font-weight:600; color:#d4d4d8; margin:24px 0 10px; }\
+            .md-body p { margin-bottom:14px; color:#a1a1aa; }\
+            .md-body strong { color:#e4e4e7; font-weight:600; }\
+            .md-body code { background:#27272a; padding:2px 6px; border-radius:4px; font-size:13px; font-family:ui-monospace,SFMono-Regular,Consolas,monospace; color:#818cf8; }\
+            .md-body pre code { background:none; padding:0; color:inherit; }\
+            .md-body ul, .md-body ol { margin:0 0 16px 28px; color:#a1a1aa; }\
+            .md-body li { margin-bottom:6px; }\
+            .md-body .mermaid { background:#1f1f23; border:1px solid #3f3f46; border-radius:8px; padding:24px 16px; margin:20px 0; text-align:center; }\
+            .md-body .mermaid svg { max-width:100%; height:auto; }\
+            #spec-md-viewer::-webkit-scrollbar { width:8px; }\
+            #spec-md-viewer::-webkit-scrollbar-track { background:#18181b; }\
+            #spec-md-viewer::-webkit-scrollbar-thumb { background:#3f3f46; border-radius:4px; }\
+            #spec-md-viewer::-webkit-scrollbar-thumb:hover { background:#52525b; }\
+        ';
+                document.head.appendChild(s);
+
+                // Render mermaid diagrams
+                mermaid.run({ nodes: viewer.querySelectorAll('.mermaid') });
+            })();
+        </script>
+
+</body>
+
+
+</html>
