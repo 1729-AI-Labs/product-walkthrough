@@ -21,7 +21,9 @@
 
         html {
             scroll-behavior: smooth;
-            font-size: 16px
+            font-size: 16px;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%
         }
 
         body {
@@ -29,7 +31,10 @@
             background: #09090b;
             color: #a1a1aa;
             line-height: 1.7;
-            overflow-x: hidden
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility
         }
 
         ::selection {
@@ -1594,26 +1599,45 @@
             }
 
             .sticky-visual {
-                position: relative;
-                top: 0;
+                position: sticky;
+                top: 68px;
                 height: auto;
-                margin-bottom: 2rem;
+                margin-bottom: -1rem;
+                z-index: 10;
+                padding: 0 0 0.5rem 0;
             }
 
-            /* Hide non-active mockups on mobile to prevent stacking */
-            .mockup-frame:not(.active) {
-                display: none;
+            .sticky-visual::before {
+                content: '';
+                position: absolute;
+                top: -2rem;
+                left: -50vw;
+                right: -50vw;
+                bottom: 0;
+                background: #09090b;
+                z-index: -1;
             }
 
-            .sticky-visual .mockup-frame {
+            .sticky-visual::after {
+                content: '';
+                position: absolute;
+                bottom: -1rem;
+                left: -50vw;
+                right: -50vw;
+                height: 2rem;
+                background: linear-gradient(to bottom, #09090b, transparent);
+                pointer-events: none;
+                z-index: 1;
+            }
+
+            /* Mockup frames: inherit desktop absolute/opacity transitions for smooth crossfade */
+            .sticky-visual .mockup-frame.active {
                 position: relative;
-                opacity: 1;
-                transform: none
             }
 
             .scroll-step {
-                min-height: auto;
-                padding: 2rem 0
+                min-height: 55vh;
+                padding: 1.5rem 0
             }
 
             .mockup-layout {
@@ -1699,6 +1723,499 @@
             background: radial-gradient(ellipse, rgba(59, 130, 246, 0.08) 0%, transparent 70%);
             pointer-events: none;
             z-index: 0;
+        }
+
+        /* ── Global Shadcn Polish ── */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px
+        }
+
+        ::-webkit-scrollbar-track {
+            background: transparent
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #27272a;
+            border-radius: 3px
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #3f3f46
+        }
+
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: #27272a transparent
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit
+        }
+
+        :focus-visible {
+            outline: 2px solid rgba(59, 130, 246, 0.5);
+            outline-offset: 2px;
+            border-radius: 4px
+        }
+
+        .mockup-frame {
+            transition: border-color 0.3s ease, box-shadow 0.3s ease
+        }
+
+        .mockup-card {
+            transition: border-color 0.25s ease
+        }
+
+        .mockup-card:hover {
+            border-color: #3f3f46
+        }
+
+        .phase-step {
+            cursor: pointer
+        }
+
+        .phase-step:active {
+            transform: scale(0.98)
+        }
+
+        /* ── Comprehensive Mobile (≤768px) ── */
+        @media (max-width: 768px) {
+            html {
+                font-size: 15px
+            }
+
+            .container {
+                padding: 0 1rem
+            }
+
+            /* Hero */
+            .hero {
+                padding: 5rem 1.2rem 2.5rem;
+                min-height: auto
+            }
+
+            .hero h1 {
+                font-size: 1.75rem;
+                max-width: 100%
+            }
+
+            .hero-subtitle {
+                font-size: 1rem
+            }
+
+            .hero-description {
+                font-size: 0.92rem
+            }
+
+            .hero-flow {
+                flex-direction: column;
+                gap: 0.5rem;
+                align-items: stretch;
+                max-width: 280px
+            }
+
+            .hero-arrow {
+                transform: rotate(90deg);
+                font-size: 0.9rem;
+                margin: -2px 0
+            }
+
+            .hero-box {
+                text-align: center;
+                padding: 10px 14px;
+                font-size: 0.8rem
+            }
+
+            /* Phase headers */
+            .phase-header {
+                padding: 4rem 1.2rem 2rem
+            }
+
+            .phase-header h2 {
+                font-size: 1.3rem
+            }
+
+            .phase-header p {
+                font-size: 0.85rem
+            }
+
+            /* Phase nav enhancements */
+            .phase-nav-container {
+                -webkit-overflow-scrolling: touch;
+                scrollbar-width: none
+            }
+
+            .phase-nav-container::-webkit-scrollbar {
+                display: none
+            }
+
+            .phase-step-title {
+                font-size: 0.9rem
+            }
+
+            .phase-step-id {
+                font-size: 0.62rem
+            }
+
+            /* Sticky sections */
+            .sticky-section {
+                gap: 1.5rem
+            }
+
+            .sticky-narrative {
+                padding: 2rem 0
+            }
+
+            .step-text {
+                max-width: 100%
+            }
+
+            .scroll-step {
+                min-height: 55vh;
+                padding: 1.5rem 0
+            }
+
+            /* Override inline grid-template-columns in mockups */
+            .mockup-frame [style*="grid-template-columns:1fr 1fr"],
+            .mockup-frame [style*="grid-template-columns: 1fr 1fr"] {
+                grid-template-columns: 1fr !important
+            }
+
+            /* FileSpace viewer: stack sidebar above content */
+            .transition-card {
+                padding: 0 1rem !important;
+                margin: 2rem auto !important
+            }
+
+            .transition-card [style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+                min-height: auto !important
+            }
+
+            .transition-card [style*="border-right"] {
+                border-right: none !important;
+                border-bottom: 1px solid #3f3f46 !important;
+                max-height: 180px !important;
+                overflow-y: auto !important
+            }
+
+            #spec-md-viewer {
+                max-height: 420px !important
+            }
+
+            /* Phase 3 alternate layout override */
+            [data-phase="sprint"] {
+                grid-template-columns: 1fr !important
+            }
+
+            [data-phase="sprint"] .sticky-narrative {
+                order: 0
+            }
+
+            /* Architecture diagram sections */
+            .phase-header [style*="max-width:540px"],
+            .phase-header [style*="max-width: 540px"] {
+                font-size: 0.88rem !important
+            }
+
+            /* Coding module */
+            .cm-nav-row {
+                padding: 8px 10px;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch
+            }
+
+            .cm-stepper {
+                font-size: 0.58rem;
+                gap: 4px
+            }
+
+            .cm-step-line {
+                width: 16px
+            }
+
+            .cm-step-dot {
+                width: 18px;
+                height: 18px;
+                font-size: 0.5rem
+            }
+
+            .cm-chat-area {
+                padding: 14px 10px
+            }
+
+            .cm-back-btn {
+                margin-right: 10px
+            }
+
+            .code-left {
+                display: none
+            }
+
+            /* Spec complete bridge */
+            .spec-complete-bridge {
+                padding: 3rem 1.2rem 0 !important
+            }
+
+            /* Verification stats - stack */
+            .mockup-frame>div [style*="display:flex"][style*="gap:12px"][style*="justify-content:center"] {
+                flex-direction: column !important;
+                gap: 8px !important
+            }
+
+            /* Reduce heavy shadows on mobile */
+            .mockup-frame {
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.03)
+            }
+
+            /* Video section */
+            .video-section {
+                padding: 3rem 1rem
+            }
+
+            .video-section h2 {
+                font-size: 1.35rem
+            }
+
+            /* Feature badges wrap */
+            .hero-features {
+                gap: 8px
+            }
+
+            .feature-badge {
+                font-size: 0.78rem;
+                padding: 6px 12px
+            }
+        }
+
+        /* ── Extra-small Mobile (≤480px) ── */
+        @media (max-width: 480px) {
+            html {
+                font-size: 14px
+            }
+
+            .hero {
+                padding: 4rem 1rem 2rem
+            }
+
+            .hero h1 {
+                font-size: 1.5rem
+            }
+
+            .hero-subtitle {
+                font-size: 0.88rem
+            }
+
+            .phase-header {
+                padding: 3rem 1rem 1.5rem
+            }
+
+            .phase-header h2 {
+                font-size: 1.15rem
+            }
+
+            .sticky-section {
+                padding: 0 0.75rem
+            }
+
+            .step-title {
+                font-size: 1.05rem
+            }
+
+            .step-text {
+                font-size: 0.84rem
+            }
+
+            /* Phase nav ultra-compact */
+            .phase-step {
+                min-width: 85px !important;
+                padding: 6px 8px !important
+            }
+
+            .phase-step-id {
+                font-size: 0.55rem
+            }
+
+            .phase-step-title {
+                font-size: 0.78rem
+            }
+
+            .phase-arrow {
+                display: none
+            }
+
+            /* Mockup padding overrides */
+            .mockup-frame [style*="padding:30px"],
+            .mockup-frame [style*="padding: 30px"] {
+                padding: 14px 10px !important
+            }
+
+            .mockup-frame [style*="padding:20px"],
+            .mockup-frame [style*="padding: 20px"] {
+                padding: 12px 10px !important
+            }
+
+            .mockup-frame [style*="padding:40px"],
+            .mockup-frame [style*="padding: 40px"] {
+                padding: 16px 12px !important
+            }
+
+            /* Mockup element scaling */
+            .mockup-h3 {
+                font-size: 0.85rem
+            }
+
+            .mockup-p {
+                font-size: 0.76rem
+            }
+
+            .mockup-label {
+                font-size: 0.62rem
+            }
+
+            .mockup-option {
+                font-size: 0.68rem;
+                padding: 8px 10px
+            }
+
+            /* Sprint rows */
+            .sprint-row {
+                padding: 8px 10px;
+                font-size: 0.68rem
+            }
+
+            .sprint-id {
+                min-width: 22px;
+                font-size: 0.65rem
+            }
+
+            /* File grid single-column */
+            .file-grid {
+                grid-template-columns: 1fr !important
+            }
+
+            /* Coding module extra-compact */
+            .cm-header {
+                padding: 5px 8px
+            }
+
+            .cm-header-logo {
+                font-size: 0.68rem
+            }
+
+            .cm-status-bar {
+                font-size: 0.56rem;
+                padding: 4px 8px
+            }
+
+            .cm-working-bar {
+                padding: 6px 8px
+            }
+
+            .cm-working-label {
+                font-size: 0.62rem
+            }
+
+            .cm-task-badge {
+                font-size: 0.58rem;
+                padding: 2px 6px
+            }
+
+            .cm-code-content {
+                font-size: 0.56rem
+            }
+
+            .cm-stream-line .ln {
+                min-width: 20px;
+                padding: 0 6px 0 8px
+            }
+
+            .cm-ai-body {
+                font-size: 0.65rem
+            }
+
+            .cm-ai-avatar {
+                width: 22px;
+                height: 22px;
+                min-width: 22px;
+                font-size: 10px
+            }
+
+            /* Spec complete bridge */
+            .spec-complete-bridge [style*="font-size:1.2rem"] {
+                font-size: 0.95rem !important
+            }
+
+            .spec-complete-bridge [style*="font-size:.92rem"] {
+                font-size: 0.8rem !important
+            }
+
+            /* Markdown viewer */
+            .md-body {
+                padding: 16px 14px !important;
+                font-size: 12px !important
+            }
+
+            .md-body h1 {
+                font-size: 16px !important
+            }
+
+            .md-body h2 {
+                font-size: 15px !important;
+                margin: 20px 0 10px !important
+            }
+
+            .md-body h3 {
+                font-size: 13px !important
+            }
+
+            /* Context box */
+            .context-box {
+                font-size: 0.65rem;
+                padding: 8px 10px
+            }
+
+            /* Architecture diagram boxes */
+            .arch-box {
+                font-size: 0.58rem;
+                padding: 4px 8px;
+                min-width: 60px
+            }
+
+            /* Task cards */
+            .task-card-mini {
+                padding: 8px 10px
+            }
+
+            .task-id {
+                font-size: 0.55rem
+            }
+
+            .task-title {
+                font-size: 0.65rem
+            }
+        }
+
+        /* ── Touch Interaction ── */
+        @media (hover: none) and (pointer: coarse) {
+            .mockup-option {
+                padding: 12px 14px;
+                min-height: 44px
+            }
+
+            .phase-step {
+                min-height: 44px
+            }
+
+            .feature-badge {
+                min-height: 36px
+            }
+
+            .sprint-row {
+                min-height: 44px
+            }
         }
     </style>
 </head>
